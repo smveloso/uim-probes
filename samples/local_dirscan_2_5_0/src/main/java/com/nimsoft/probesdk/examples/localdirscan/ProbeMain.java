@@ -89,6 +89,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public void addDefaultProbeConfigurationToGraph() {
+        
+        Log.info(">> addDefaultProbeConfigurationToGraph()"); 
+        
         // To enable the user to add resources for the probe in the probe oriented configuration UI,  
         // the following adds a resource definition to the profile
         ElementDef resDef = ElementDef.getElementDef("RESOURCE");
@@ -191,6 +194,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public IInventoryDataset getUpdatedInventory(ResourceConfig resourceConfig, IInventoryDataset previousDataset) throws NimException, InterruptedException {
+        
+        Log.info(">> getUpdatedInventory(...)"); 
+        
         // A recommended best practice is to read configuration information
         // on each call to getUpdatedInventory(). This ensures configuration changes
         // take effect without the need for a full restart of the probe.
@@ -206,6 +212,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
         buildInventory(new File(targetDir), traversalDepth, inventoryDataset, resourceConfig);
         Log.info("==== End getUpdatedInventory: Pass-" + counter + "   " + resourceConfig.getName());
+        Log.info(">> getUpdatedInventory(...)");         
         return inventoryDataset;
     }
     
