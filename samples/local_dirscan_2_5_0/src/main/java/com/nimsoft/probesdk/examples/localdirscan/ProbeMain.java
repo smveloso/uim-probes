@@ -197,6 +197,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         
         Log.info(">> getUpdatedInventory(...)"); 
         
+        dumpResourceConfig(resourceConfig);
+        
+        
         // A recommended best practice is to read configuration information
         // on each call to getUpdatedInventory(). This ensures configuration changes
         // take effect without the need for a full restart of the probe.
@@ -308,6 +311,18 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
             count = contents.length;
         }
         return count;
+    }
+
+    private void dumpResourceConfig(ResourceConfig resourceConfig) {
+        Log.info(">> dumpResourceConfig(ResourceConfig)");
+        Log.info("getBaseMonitorName: " + resourceConfig.getBaseMonitorName());
+        Log.info("getBaseTargetPath: " + resourceConfig.getBaseTargetPath());
+        Log.info("getCiName: " + resourceConfig.getCiName());
+        Log.info("getConfigItemId: " + resourceConfig.getConfigItemId());
+        Log.info("getIntervalStr: " + resourceConfig.getIntervalStr());
+        Log.info("getIpAddr: " + resourceConfig.getIpAddr());
+        Log.info("getName: " + resourceConfig.getName());
+        Log.info("getSource: " + resourceConfig.getSource());
     }
 
 }
