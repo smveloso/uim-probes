@@ -1,4 +1,4 @@
-package br.jus.trt3.seit.uim.probe;
+package br.jus.trt3.seit.uim.probe.trt3jboss;
 
 import br.jus.trt3.seit.uim.probe.types.*;
 
