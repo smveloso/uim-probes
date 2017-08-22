@@ -94,19 +94,27 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         
         // To enable the user to add resources for the probe in the probe oriented configuration UI,  
         // the following adds a resource definition to the profile
+        
+        // The RESOURCE here is a file or directory. In the UI, 
+        // these resources are called "profile resources".
+        
         ElementDef resDef = ElementDef.getElementDef("RESOURCE");
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.DeleteProfileAction);
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.VerifySelectionAction, "Verify Directory Configuration");
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.AddProfileActionOnProbe, "Add directory Resource");
 
+        // The SETUP properties are properties that in the UI will be
+        // attached to the probe itself, along with "Log Level" and others.
+        
         // add SETUP properties
         CtdPropertyDefinitionsList setupPropDefs = CtdPropertyDefinitionsList.createCtdPropertyDefinitionsList("SETUP", getGraph());
 
         // adds the traversal depth property, with a default value
-        setupPropDefs.addIntegerPropertyUsingEditField(TRAVERSAL_DEPTH_PROP, "Directory Traversal Depth", 4);
+        setupPropDefs.addIntegerPropertyUsingEditField(TRAVERSAL_DEPTH_PROP, "Directory Traversal Depth", 4);  // <<<----- new property
 
 
-        // Next set the properties that will be available when a new profile is created in the probe configuration UI
+        // NOTE the "new profile" in the next line.
+        // Next set the properties that will be available when a >> new profile  << is created in the probe configuration UI
         CtdPropertyDefinitionsList profilePropDefs = CtdPropertyDefinitionsList.createCtdPropertyDefinitionsList("RESOURCE", getGraph());
         // Add an identifier (essentially the profile's name)
         profilePropDefs.addStandardIdentifierProperty();
@@ -317,12 +325,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         Log.info(">> dumpResourceConfig(ResourceConfig)");
         Log.info("getBaseMonitorName: " + resourceConfig.getBaseMonitorName());
         Log.info("getBaseTargetPath: " + resourceConfig.getBaseTargetPath());
-        Log.info("getCiName: " + resourceConfig.getCiName());
+        Log.info("getCiName: " + resourceConfig.getCiName());  // <-- the profile name 
         //Log.info("getConfigItemId: " + resourceConfig.getConfigItemId());
         Log.info("getIntervalStr: " + resourceConfig.getIntervalStr());
         Log.info("getIpAddr: " + resourceConfig.getIpAddr());
         Log.info("getName: " + resourceConfig.getName());
-        Log.info("getSource: " + resourceConfig.getSource());
+        Log.info("getSource: " + resourceConfig.getSource());  // <-- source
     }
 
 }
