@@ -20,7 +20,7 @@
                 <qos-metric-type name="Trt3TestMetric">
                     <active>yes</active>
                     <description>TRT3 Test Metric</description>
-                    <label>Example Metric</label>
+                    <label>ExampleMetric</label>
                     <metric-type>9.9:9</metric-type>
                     <qos-name>QOS_EXAMPLE_METRIC</qos-name>
                     <unit>count</unit>
