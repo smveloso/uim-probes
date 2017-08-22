@@ -12,12 +12,12 @@
             </qos-metric-types>
         </element-type>
 
-        <element-type name="Trt3JbossInstance">
+        <element-type name="TrtJbossInstance">
             <base-element-type>SoftwareElement</base-element-type>
             <icon>checkbox</icon>
             <properties/>
             <qos-metric-types>
-                <qos-metric-type name="Trt3JbossMemoryUsage">
+                <qos-metric-type name="TrtJbossMemoryUsage">
                     <active>yes</active>
                     <description>TRT3 JBoss Memory Usage in KB</description>
                     <label>SizeInKB</label>
