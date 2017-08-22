@@ -20,9 +20,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     /*
      * Probe Name, Version, and Vendor are required when initializing the probe.
      */
-    public final static  String PROBE_NAME = "jboss-custom";
+    public final static  String PROBE_NAME = "trt3jboss";
     public static final  String PROBE_VERSION = MvnPomVersion.get("br.jus.trt3.seit.uim.probe", PROBE_NAME);
-    public static final  String PROBE_VENDOR = "br.jus.trt3.seit.uim.probe";
+    public static final  String PROBE_VENDOR = "TRT-3";
     
     /**
      * Every probe is a stand alone Java program that must start itself up and
@@ -56,6 +56,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         super(args, PROBE_NAME, PROBE_VERSION, PROBE_VENDOR);
         // Indicate this is a local probe
         setLocalMode(true);
+        //useShortTargetName(true); local_dirscan does this
     }
 
     /**
@@ -163,9 +164,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * When using this template to create a probe you should modify probe_schema.xml
          * to specify your inventory elements and metrics. 
          */
-        Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "ExampleFolder"), "ExampleFolder", resourceConfig);
-        ExampleGenericElement exampleElement = ExampleGenericElement.addInstance(inventoryDataset, new EntityId(exampleFolder, "ExampleElement"), "ExampleElement", exampleFolder);
-        exampleElement.setMetric(ExampleGenericElement.ExampleMetric, 999);
+        Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "TRT3TestFolder"), "TRT3TestFolder", resourceConfig);
+        Trt3TestElement exampleElement = Trt3TestElement.addInstance(inventoryDataset, new EntityId(exampleFolder, "Trt3TestElement"), "Trt3TestElement", exampleFolder);
+        exampleElement.setMetric(Trt3TestElement.Trt3TestMetric, 999);
         
         return inventoryDataset;
     }

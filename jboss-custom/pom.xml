@@ -2,15 +2,15 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.jus.trt3.seit.uim.probe</groupId>
-    <artifactId>jboss-custom</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>trt3jboss</artifactId>
+    <version>0.1-SNAPSHOT</version>
 
     <properties>
 
         <!-- Probe properties -->
-        <probe.name>jboss-custom</probe.name>
+        <probe.name>trt3jboss</probe.name>
         <probe.category>application</probe.category>
-        <mainClass>br.jus.trt3.seit.uim.probe.ProbeMain</mainClass>
+        <mainClass>br.jus.trt3.seit.uim.probe.trt3jboss.ProbeMain</mainClass>
 
         <!-- Build properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

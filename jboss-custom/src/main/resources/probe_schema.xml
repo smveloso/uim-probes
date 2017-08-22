@@ -12,14 +12,14 @@
             </qos-metric-types>
         </element-type>
 
-        <element-type name="ExampleGenericElement">
+        <element-type name="Trt3TestElement">
             <base-element-type>Element</base-element-type>
             <icon>checkbox</icon>
             <properties/>
             <qos-metric-types>
-                <qos-metric-type name="ExampleMetric">
+                <qos-metric-type name="Trt3TestMetric">
                     <active>yes</active>
-                    <description>Example Metric</description>
+                    <description>TRT3 Test Metric</description>
                     <label>Example Metric</label>
                     <metric-type>9.9:9</metric-type>
                     <qos-name>QOS_EXAMPLE_METRIC</qos-name>
