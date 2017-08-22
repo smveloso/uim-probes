@@ -24,6 +24,19 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     public static final  String PROBE_VERSION = MvnPomVersion.get("br.jus.trt3.seit.uim.probe", PROBE_NAME);
     public static final  String PROBE_VENDOR = "TRT-3";
     
+    
+    private static final String DEFAULT_TIMEOUT_PROP = "default_timeout";
+    
+    /** 4 - JBoss AS 4.x
+     *  5 - JBoss AS 5.x
+     *  6 - JBoss AS 6.x
+     *  7 - JBoss AS 7.x
+     *  8 - Wildfly
+     */
+    private static final String PROFILE_JBOSS_VERSION_PROP = "jboss_version";
+    private static final Integer PROFILE_JBOSS_DEFAULT_VERSION = 7;
+    
+    
     /**
      * Every probe is a stand alone Java program that must start itself up and
      * register itself with the bus. The Probe Framework provides all the logic
@@ -74,6 +87,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.VerifySelectionAction, "Verify Profile Configuration");
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.AddProfileActionOnProbe, "Add Profile");
         
+        // add SETUP properties
+        CtdPropertyDefinitionsList setupPropDefs = CtdPropertyDefinitionsList.createCtdPropertyDefinitionsList("SETUP", getGraph());
+
+        // adds the traversal depth property, with a default value
+        setupPropDefs.addIntegerPropertyUsingEditField(DEFAULT_TIMEOUT_PROP, "Default Timeout (s)", 30);
+        
         // Set the properties that will be available when a new profile is created in the probe configuration UI
         CtdPropertyDefinitionsList profilePropDefs = CtdPropertyDefinitionsList.createCtdPropertyDefinitionsList("RESOURCE", getGraph());
         profilePropDefs.addStandardIdentifierProperty();
@@ -81,6 +100,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         profilePropDefs.addStandardIntervalProperty();
         profilePropDefs.addStandardActiveProperty();
 
+        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_VERSION_PROP, "JBoss Version", PROFILE_JBOSS_DEFAULT_VERSION);
+        profilePropDefs.setCfgPathname(PROFILE_JBOSS_VERSION_PROP, "properties/"+PROFILE_JBOSS_VERSION_PROP);
+        
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
     }
@@ -165,7 +187,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * to specify your inventory elements and metrics. 
          */
         Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "TRT3TestFolder"), "TRT3TestFolder", resourceConfig);
-        Trt3TestElement exampleElement = Trt3TestElement.addInstance(inventoryDataset, new EntityId(exampleFolder, "Trt3TestElement"), "Trt3TestElement", exampleFolder);
+        Trt3TestElement exampleElement = Trt3TestElement.addInstance(inventoryDataset, new EntityId(exampleFolder, resourceConfig.getName()), resourceConfig.getName(), exampleFolder);
         exampleElement.setMetric(Trt3TestElement.Trt3TestMetric, 999);
         
         return inventoryDataset;
