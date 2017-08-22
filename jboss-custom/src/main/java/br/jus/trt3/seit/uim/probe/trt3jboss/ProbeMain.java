@@ -186,8 +186,11 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * When using this template to create a probe you should modify probe_schema.xml
          * to specify your inventory elements and metrics. 
          */        
-        TrtJbossInstance instance = TrtJbossInstance.addInstance(inventoryDataset, new EntityId("HeapMemory"), "HeapMemory", resourceConfig);
-        instance.setMetric(TrtJbossInstance.TrtJbossMemoryUsage, 1024);
+        TrtJbossMemory heapMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("HeapMemory"), "HeapMemory", resourceConfig);
+        heapMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
+
+        TrtJbossMemory youngGenMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("YGMemory"), "YGMemory", resourceConfig);
+        youngGenMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
         
         return inventoryDataset;
     }

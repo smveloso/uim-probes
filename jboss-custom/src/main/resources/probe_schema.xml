@@ -12,7 +12,7 @@
             </qos-metric-types>
         </element-type>
 
-        <element-type name="TrtJbossInstance">
+        <element-type name="TrtJbossMemory">
             <base-element-type>SoftwareElement</base-element-type>
             <icon>checkbox</icon>
             <properties/>
