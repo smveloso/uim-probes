@@ -12,18 +12,27 @@
             </qos-metric-types>
         </element-type>
 
-        <element-type name="Trt3TestElement">
-            <base-element-type>Element</base-element-type>
+        <element-type name="Trt3JbossInstance">
+            <base-element-type>SoftwareElement</base-element-type>
             <icon>checkbox</icon>
             <properties/>
             <qos-metric-types>
-                <qos-metric-type name="Trt3TestMetric">
+                <qos-metric-type name="Trt3JbossMemoryUsage">
                     <active>yes</active>
-                    <description>TRT3 Test Metric</description>
-                    <label>ExampleMetric</label>
-                    <metric-type>9.9:9</metric-type>
-                    <qos-name>QOS_EXAMPLE_METRIC</qos-name>
-                    <unit>count</unit>
+                    <description>TRT3 JBoss Memory Usage in KB</description>
+                    <label>SizeInKB</label>
+                    <metric-type>3.5:3</metric-type>
+                    
+                    <!--
+                    Important! 
+                    
+                    The name of any custom QoS metrics you add must be in the format: QOS_<APPLICATION/PROBE_NAME>_<UNIQUE_IDENTIFIER>.
+                    The entire metric name is capitalized with no spaces by convention. 
+                    For example, QOS_CLOUD1_MONITORNAME. It is also a good practice to append the abbreviated units.
+                    -->
+                    
+                    <qos-name>QOS_TRTJBOSS_MEMORY_USAGE</qos-name>
+                    <unit>KB</unit>
                     <conversions/>
                 </qos-metric-type>
             </qos-metric-types>
