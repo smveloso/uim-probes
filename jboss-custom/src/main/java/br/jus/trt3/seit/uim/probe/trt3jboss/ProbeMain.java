@@ -36,6 +36,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     private static final String PROFILE_JBOSS_VERSION_PROP = "jboss_version";
     private static final Integer PROFILE_JBOSS_DEFAULT_VERSION = 7;
     
+    private static final String PROFILE_JBOSS_IP_PROP = "jboss_ip";
+    private static final String PROFILE_JBOSS_DEFAULT_IP = "127.0.0.1";
+
+    
+    private static final String PROFILE_JBOSS_PORT_PROP = "jboss_port";
+    private static final Integer PROFILE_JBOSS_DEFAULT_PORT = 4447;
     
     /**
      * Every probe is a stand alone Java program that must start itself up and
@@ -102,6 +108,13 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
         profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_VERSION_PROP, "JBoss Version", PROFILE_JBOSS_DEFAULT_VERSION);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_VERSION_PROP, "properties/"+PROFILE_JBOSS_VERSION_PROP);
+        
+        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_IP_PROP, "Server IP", PROFILE_JBOSS_DEFAULT_IP);
+        profilePropDefs.setCfgPathname(PROFILE_JBOSS_IP_PROP, "properties/"+PROFILE_JBOSS_IP_PROP);
+
+        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_PORT_PROP, "Server IP", PROFILE_JBOSS_DEFAULT_PORT);
+        profilePropDefs.setCfgPathname(PROFILE_JBOSS_PORT_PROP, "properties/"+PROFILE_JBOSS_PORT_PROP);
+
         
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
