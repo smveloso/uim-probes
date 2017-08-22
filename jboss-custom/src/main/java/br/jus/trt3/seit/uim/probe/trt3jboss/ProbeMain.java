@@ -185,9 +185,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * and set a Metric on it. 
          * When using this template to create a probe you should modify probe_schema.xml
          * to specify your inventory elements and metrics. 
-         */
-        Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "TRT3TestFolder"), "TRT3TestFolder", resourceConfig);
-        Trt3TestElement exampleElement = Trt3TestElement.addInstance(inventoryDataset, new EntityId(exampleFolder, resourceConfig.getName()), resourceConfig.getName(), exampleFolder);
+         */        
+        Trt3TestElement exampleElement = Trt3TestElement.addInstance(inventoryDataset, new EntityId(resourceConfig.getName()), resourceConfig.getName(), resourceConfig);
         exampleElement.setMetric(Trt3TestElement.Trt3TestMetric, 999);
         
         return inventoryDataset;
