@@ -318,7 +318,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         Log.info("getBaseMonitorName: " + resourceConfig.getBaseMonitorName());
         Log.info("getBaseTargetPath: " + resourceConfig.getBaseTargetPath());
         Log.info("getCiName: " + resourceConfig.getCiName());
-        Log.info("getConfigItemId: " + resourceConfig.getConfigItemId());
+        //Log.info("getConfigItemId: " + resourceConfig.getConfigItemId());
         Log.info("getIntervalStr: " + resourceConfig.getIntervalStr());
         Log.info("getIpAddr: " + resourceConfig.getIpAddr());
         Log.info("getName: " + resourceConfig.getName());
