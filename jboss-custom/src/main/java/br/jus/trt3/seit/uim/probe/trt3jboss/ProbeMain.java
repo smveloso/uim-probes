@@ -1,5 +1,7 @@
 package br.jus.trt3.seit.uim.probe.trt3jboss;
 
+import br.jus.trt3.seit.uim.probe.Trt3ProbeException;
+import br.jus.trt3.seit.uim.probe.Util;
 import br.jus.trt3.seit.uim.probe.types.*;
 
 import com.nimsoft.pf.common.pom.MvnPomVersion;
@@ -13,6 +15,7 @@ import com.nimsoft.probe.framework.devkit.configuration.CtdPropertyDefinitionsLi
 import com.nimsoft.probe.framework.devkit.configuration.ResourceConfig;
 import com.nimsoft.probe.framework.devkit.inventory.typedefs.*;
 import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
+import java.io.File;
 
 public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
@@ -33,17 +36,19 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      *  8 - Wildfly
      */
     private static final String PROFILE_JBOSS_VERSION_PROP = "jboss_version";
-    private static final Integer PROFILE_JBOSS_DEFAULT_VERSION = 7;
     
     private static final String PROFILE_JBOSS_IP_PROP = "jboss_ip";
-    private static final String PROFILE_JBOSS_DEFAULT_IP = "127.0.0.1";
 
     private static final String PROFILE_JBOSS_PORT_PROP = "jboss_port";
-    private static final Integer PROFILE_JBOSS_DEFAULT_PORT = 4447;
     
     private static final String PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP = "jboss_custom_config_file";
-    private static final String PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE = "/opt/nimsoft/probe/application/trt3jboss";
+
     
+    private static final Integer MIN_JBOSS_VERSION = 4;
+    private static final Integer MAX_JBOSS_VERSION = 8;
+
+    private static final Integer MIN_JBOSS_PORT = 1025;
+    private static final Integer MAX_JBOSS_PORT = 65535;
     
     /**
      * Every probe is a stand alone Java program that must start itself up and
@@ -75,9 +80,11 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     public ProbeMain(String[] args) throws NimException {
         super(args, PROBE_NAME, PROBE_VERSION, PROBE_VENDOR);
+        myLog(">> ProbeMain(String[])", LogLevel.DEBUG);
         // Indicate this is a local probe
         setLocalMode(true);
         //useShortTargetName(true); local_dirscan does this
+        myLog("<< ProbeMain(String[])", LogLevel.DEBUG);
     }
 
     /**
@@ -111,16 +118,16 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         profilePropDefs.addStandardIntervalProperty();
         profilePropDefs.addStandardActiveProperty();
 
-        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_VERSION_PROP, "JBoss Version", PROFILE_JBOSS_DEFAULT_VERSION);
+        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_VERSION_PROP, "JBoss Version", ProfileVO.PROFILE_JBOSS_DEFAULT_VERSION);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_VERSION_PROP, "properties/"+PROFILE_JBOSS_VERSION_PROP);
         
-        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_IP_PROP, "Server IP", PROFILE_JBOSS_DEFAULT_IP);
+        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_IP_PROP, "Server IP", ProfileVO.PROFILE_JBOSS_DEFAULT_IP);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_IP_PROP, "properties/"+PROFILE_JBOSS_IP_PROP);
 
-        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_PORT_PROP, "Server Port", PROFILE_JBOSS_DEFAULT_PORT);
+        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_PORT_PROP, "Server Port", ProfileVO.PROFILE_JBOSS_DEFAULT_PORT);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_PORT_PROP, "properties/"+PROFILE_JBOSS_PORT_PROP);
 
-        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "Config File", PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE);
+        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "Config File", ProfileVO.PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "properties/"+PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP);        
         
         // You must always invoke the super method
@@ -158,6 +165,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     @Override
     public IInventoryDataset testResource(ResourceConfig res) throws NimException, InterruptedException {  
         myLog("==== testResource: " + res.getName());
+        myLog(">> testResource(ResourceConfig)");
         
         /**
          * ***** Insert your test logic here *****
@@ -166,10 +174,15 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * then throw a NimException
          */
         
-        validateResourceConfiguration(res);
+        try {
+            validateResourceConfiguration(res);
+        } catch (Trt3ProbeException mapped) {
+            throw new NimException(NimException.E_INVAL, mapped.getMessage(), mapped);
+        }
         
         // If we get to here then our tests were successful. Since we dont have 
         // any advanced information we wish to return we can simply return null
+        myLog("<< testResource(ResourceConfig)");
         return null;
     }
     
@@ -196,19 +209,26 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         // framework, so there is very low overhead here.
         int counter = resourceConfig.updateCounter;
         
-        myLog("==== Begin getUpdatedInventory: Pass-" + counter + "   " + resourceConfig.getName());
+        myLog(">> getUpdatedInventory(ResourceConfig,IInventoryDataset)");
+        myLog("Pass: " + counter);
+        myLog("Name: " + resourceConfig.getName());
+        
+        ProfileVO vo = null;
+        try {
+            vo = validateResourceConfiguration(resourceConfig);
+        } catch (Trt3ProbeException mapped) {
+            myLog("ERROR getting vo for profile: " + mapped.getMessage());
+            throw new NimException(NimException.E_INVAL, "ERROR getting vo for profile", mapped);
+        }
+        
+        myLog(vo.toString());
         
         // Create a new empty InventoryDataset
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
         
-        /**
-         * ***** Insert your logic for populating the inventoryDataset here *****
-         * The following few lines of code are provided simply as an example of 
-         * how to create an inventory element, attach it to the ResourceConfig,
-         * and set a Metric on it. 
-         * When using this template to create a probe you should modify probe_schema.xml
-         * to specify your inventory elements and metrics. 
-         */        
+        //TODO: Ler o arquivo de configuração e criar a estrutura usando os Elements 
+        //      definidos em probe_schema.xml
+
         TrtJbossMemory heapMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("HeapMemory"), "HeapMemory", resourceConfig);
         heapMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
 
@@ -220,9 +240,58 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         return inventoryDataset;
     }
 
-    private void validateResourceConfiguration(ResourceConfig res) {
+    /** Invoked from 'testResource'
+     * 
+     *  PROFILE_JBOSS_VERSION_PROP must be null or between 4 and 8.
+     *  PROFILE_JBOSS_PORT_PROP must be null or indicate a valid tcp port.
+     *  PROFILE_JBOSS_IP_PROP must be null or indicate a valid IP address of the local host.
+     * 
+     * @param res 
+     */
+    private ProfileVO validateResourceConfiguration(ResourceConfig res) throws Trt3ProbeException {
         myLog(">> validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
+        
+        ProfileVO vo = new ProfileVO();
+        
+        String jbossVersionString = res.getResourceProperty(PROFILE_JBOSS_VERSION_PROP);
+        if (jbossVersionString != null) {
+            int jbossVersion = Util.toInteger(jbossVersionString);
+            if (jbossVersion < MIN_JBOSS_VERSION || jbossVersion > MAX_JBOSS_VERSION) {
+                throw new Trt3ProbeException("not a valid jboss version: " + jbossVersion);
+            }
+            vo.setJbossVersion(jbossVersion);
+        }
+        
+        String jbossPortString = res.getResourceProperty(PROFILE_JBOSS_PORT_PROP);
+        if (jbossPortString != null) {
+            int jbossPort = Util.toInteger(jbossPortString);
+            if (jbossPort < MIN_JBOSS_PORT || jbossPort > MAX_JBOSS_PORT) {
+                throw new Trt3ProbeException("not a valid jboss port: " + jbossPort);
+            }
+            vo.setJbossPort(jbossPort);
+        }
+        
+        String jbossIpString = res.getResourceProperty(PROFILE_JBOSS_IP_PROP);
+        if (jbossIpString != null) {
+            vo.setJbossIp(Util.toIpAddress(jbossIpString));
+        }
+
+        String jbossCustomConfigFile = res.getResourceProperty(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP);
+        File jbossFile;
+        if (jbossCustomConfigFile != null) {
+            jbossFile = new File(jbossCustomConfigFile);
+        } else {
+            jbossFile = vo.getCustomConfigFile(); // uses the default
+        }
+        
+        if (!jbossFile.exists() || !jbossFile.canRead()) {
+           throw new Trt3ProbeException("not a valid config file: " + jbossFile.getAbsolutePath()); 
+        }
+
+        vo.setCustomConfigFile(jbossFile);
+        
         myLog("<< validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
+        return vo;
     }
 
     /** Logs a message as INFO
