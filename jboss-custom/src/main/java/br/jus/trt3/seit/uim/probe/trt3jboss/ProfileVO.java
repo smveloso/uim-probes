@@ -15,7 +15,7 @@ public class ProfileVO {
     public static final Integer PROFILE_JBOSS_DEFAULT_VERSION = 7;
     public static final String PROFILE_JBOSS_DEFAULT_IP = "127.0.0.1";
     public static final Integer PROFILE_JBOSS_DEFAULT_PORT = 4447;
-    public static final String PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE = "/opt/nimsoft/probe/application/trt3jboss/trt3config.cfg";
+    public static final String PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE = "/opt/nimsoft/probes/application/trt3jboss/trt3config.cfg";
     
     private Integer jbossPort = PROFILE_JBOSS_DEFAULT_PORT;
     private InetAddress jbossIp = null;
