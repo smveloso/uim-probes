@@ -10,7 +10,6 @@ import com.nimsoft.probe.framework.devkit.interfaces.IProbeInventoryCollection;
 import com.nimsoft.probe.framework.devkit.interfaces.IInventoryDataset;
 import com.nimsoft.probe.framework.devkit.InventoryDataset;
 import com.nimsoft.probe.framework.devkit.configuration.CtdPropertyDefinitionsList;
-import com.nimsoft.probe.framework.devkit.inventory.Folder;
 import com.nimsoft.probe.framework.devkit.configuration.ResourceConfig;
 import com.nimsoft.probe.framework.devkit.inventory.typedefs.*;
 import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
@@ -39,9 +38,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     private static final String PROFILE_JBOSS_IP_PROP = "jboss_ip";
     private static final String PROFILE_JBOSS_DEFAULT_IP = "127.0.0.1";
 
-    
     private static final String PROFILE_JBOSS_PORT_PROP = "jboss_port";
     private static final Integer PROFILE_JBOSS_DEFAULT_PORT = 4447;
+    
+    private static final String PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP = "jboss_custom_config_file";
+    private static final String PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE = "/opt/nimsoft/probe/application/trt3jboss";
+    
     
     /**
      * Every probe is a stand alone Java program that must start itself up and
@@ -87,7 +89,10 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public void addDefaultProbeConfigurationToGraph() {
-        // Add standard actions to add/delete/verify a profile
+        
+        myLog(">> addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
+        
+        // Add standard actions to add/delete/verify a profile        
         ElementDef resDef = ElementDef.getElementDef("RESOURCE");
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.DeleteProfileAction);
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.VerifySelectionAction, "Verify Profile Configuration");
@@ -112,12 +117,15 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_IP_PROP, "Server IP", PROFILE_JBOSS_DEFAULT_IP);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_IP_PROP, "properties/"+PROFILE_JBOSS_IP_PROP);
 
-        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_PORT_PROP, "Server IP", PROFILE_JBOSS_DEFAULT_PORT);
+        profilePropDefs.addIntegerPropertyUsingEditField(PROFILE_JBOSS_PORT_PROP, "Server Port", PROFILE_JBOSS_DEFAULT_PORT);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_PORT_PROP, "properties/"+PROFILE_JBOSS_PORT_PROP);
 
+        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "Config File", PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE);
+        profilePropDefs.setCfgPathname(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "properties/"+PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP);        
         
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
+        myLog("<< addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
     }
  
     /**
@@ -149,7 +157,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public IInventoryDataset testResource(ResourceConfig res) throws NimException, InterruptedException {  
-        Log.info("==== testResource: " + res.getName());
+        myLog("==== testResource: " + res.getName());
         
         /**
          * ***** Insert your test logic here *****
@@ -157,6 +165,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * allow this method to return null. If you need to report an error
          * then throw a NimException
          */
+        
+        validateResourceConfiguration(res);
         
         // If we get to here then our tests were successful. Since we dont have 
         // any advanced information we wish to return we can simply return null
@@ -186,7 +196,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         // framework, so there is very low overhead here.
         int counter = resourceConfig.updateCounter;
         
-        Log.info("==== Begin getUpdatedInventory: Pass-" + counter + "   " + resourceConfig.getName());
+        myLog("==== Begin getUpdatedInventory: Pass-" + counter + "   " + resourceConfig.getName());
         
         // Create a new empty InventoryDataset
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
@@ -205,7 +215,54 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         TrtJbossMemory youngGenMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("YGMemory"), "YGMemory", resourceConfig);
         youngGenMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
         
+        
+        myLog("<< getUpdatedInventory(...)");
         return inventoryDataset;
     }
 
+    private void validateResourceConfiguration(ResourceConfig res) {
+        myLog(">> validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
+        myLog("<< validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
+    }
+
+    /** Logs a message as INFO
+     *  Uses nimsoft´s log class
+     * 
+     * @param message Text to write to log output.
+     */
+    private void myLog(String message) {
+        myLog(message,LogLevel.INFO);
+    }
+
+    /** Logs a message using specified level.
+     *  Uses nimsoft´s log class
+     * 
+     * @param message Text to write to log output.
+     */    
+    private void myLog(String message, LogLevel level) {
+        message = "[TRT3] |" + message;
+        switch(level.ordinal()) {
+           case 0:
+               Log.fatal(message);
+               break;
+           case 1:
+               Log.error(message);
+               break;
+           case 2:
+               Log.warn(message);
+               break;
+           case 3:
+               Log.info(message);
+               break;
+           case 4:
+               Log.debug(message);
+               break;
+           case 5:
+               Log.trace(message);
+               break;
+           default:
+               throw new RuntimeException("LOGLEVEL UNKOWN: " + level.ordinal());
+       }
+    }
+    
 }
