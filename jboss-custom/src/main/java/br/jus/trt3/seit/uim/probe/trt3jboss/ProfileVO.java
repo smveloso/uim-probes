@@ -33,10 +33,10 @@ public class ProfileVO {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("ProfileVO:\n");
-        sb.append("CONFIG  : ").append(getCustomConfigFile());
-        sb.append("IP      : ").append(getJbossIp());
-        sb.append("PORT    : ").append(getJbossPort());
-        sb.append("VERSION : ").append(getJbossVersion());
+        sb.append("CONFIG  : ").append(getCustomConfigFile()).append("\n");
+        sb.append("IP      : ").append(getJbossIp()).append("\n");
+        sb.append("PORT    : ").append(getJbossPort()).append("\n");
+        sb.append("VERSION : ").append(getJbossVersion()).append("\n");
         return sb.toString();
     }
     
