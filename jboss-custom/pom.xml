@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.jus.trt3.seit.uim.probe</groupId>
     <artifactId>trt3jboss</artifactId>
-    <version>0.92-SNAPSHOT</version>
+    <version>0.93-SNAPSHOT</version>
 
     <properties>
 
@@ -37,6 +37,14 @@
             <artifactId>probe-api</artifactId>
             <version>${probe-api.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
