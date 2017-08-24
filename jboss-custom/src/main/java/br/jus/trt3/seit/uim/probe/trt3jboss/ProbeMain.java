@@ -240,7 +240,11 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         return inventoryDataset;
     }
 
-    /** Invoked from 'testResource'
+    /** Invoked from 'testResource'.
+     * 
+     *  Will throw an Exception if validation fails,
+     *  otherwise will return a VO with the configuration
+     *  data.
      * 
      *  PROFILE_JBOSS_VERSION_PROP must be null or between 4 and 8.
      *  PROFILE_JBOSS_PORT_PROP must be null or indicate a valid tcp port.
