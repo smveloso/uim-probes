@@ -4,5 +4,6 @@
 **~
 **\.swp
 **\.zip
+**\.log
 /jboss-custom/target/
 /jboss-custom/nbproject/
