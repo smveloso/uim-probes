@@ -1,7 +1,10 @@
 package br.jus.trt3.seit.uim.probe.trt3jboss;
 
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.CustomConfigVO;
 import br.jus.trt3.seit.uim.probe.Trt3ProbeException;
 import br.jus.trt3.seit.uim.probe.Util;
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Folder;
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Profile;
 import br.jus.trt3.seit.uim.probe.types.*;
 
 import com.nimsoft.pf.common.pom.MvnPomVersion;
@@ -16,6 +19,8 @@ import com.nimsoft.probe.framework.devkit.configuration.ResourceConfig;
 import com.nimsoft.probe.framework.devkit.inventory.typedefs.*;
 import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
@@ -210,18 +215,21 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         int counter = resourceConfig.updateCounter;
         
         myLog(">> getUpdatedInventory(ResourceConfig,IInventoryDataset)");
-        myLog("Pass: " + counter);
-        myLog("Name: " + resourceConfig.getName());
         
-        ProfileVO vo = null;
+        String profileName = resourceConfig.getName();
+        
+        myLog("Pass    : " + counter);
+        myLog("Profile : " + profileName);
+        
+        ProfileVO voProfile = null;
         try {
-            vo = validateResourceConfiguration(resourceConfig);
+            voProfile = validateResourceConfiguration(resourceConfig);
         } catch (Trt3ProbeException mapped) {
-            myLog("ERROR getting vo for profile: " + mapped.getMessage());
+            myLog("ERROR getting vo for profile: " + mapped.getMessage(),LogLevel.ERROR);
             throw new NimException(NimException.E_INVAL, "ERROR getting vo for profile", mapped);
         }
         
-        myLog(vo.toString());
+        myLog(voProfile.toString());
         
         // Create a new empty InventoryDataset
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
@@ -229,6 +237,43 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         //TODO: Ler o arquivo de configuração e criar a estrutura usando os Elements 
         //      definidos em probe_schema.xml
 
+        CustomConfigVO voConfig = null;
+                
+        try {
+            voConfig = getCustomConfig(voProfile.getCustomConfigFile());
+        } catch (Trt3ProbeException mapped) {
+            myLog("ERROR getting custom config for profile: " + mapped.getMessage(),LogLevel.ERROR);
+            throw new NimException(NimException.E_INVAL, "ERROR getting custom config for profile " + profileName, mapped);
+        }
+        
+        // locate the entry that matches the current profile
+        if (voConfig.getProfiles().containsKey(profileName)) {
+            Profile profile = voConfig.getProfiles().get(profileName);
+            
+            // for each Folder ...
+            for (String folderName:profile.getFolders().keySet()) {
+                Folder folder = profile.getFolders().get(folderName);
+                com.nimsoft.probe.framework.devkit.inventory.Folder uimFolder = 
+                        com.nimsoft.probe.framework.devkit.inventory.Folder
+                                .addInstance(inventoryDataset, 
+                                             new EntityId(resourceConfig,folder.getName()), 
+                                             folder.getName(), 
+                                             resourceConfig);
+                
+            // TODO read the qos-name --> class map
+            // TODO create the element
+ 
+                
+            }
+ 
+            // TODO get the jmx item value !!! all at once ? use loop above (too slow ???)
+            
+            
+        } else {
+            myLog("COULD NOT FIND CUSTOM CONFIG FOR PROFILE: " + profileName,LogLevel.WARN);
+        }
+        
+        
         TrtJbossMemory heapMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("HeapMemory"), "HeapMemory", resourceConfig);
         heapMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
 
@@ -240,6 +285,15 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         return inventoryDataset;
     }
 
+    private CustomConfigVO getCustomConfig(File customConfigFile) throws Trt3ProbeException {
+        myLog(">> getCustomConfig(File) -- " + customConfigFile.getAbsolutePath());
+        CustomConfigVO vo = new CustomConfigVO();
+        
+        
+        myLog("<< getCustomConfig(File)");
+        return vo;
+    }
+    
     /** Invoked from 'testResource'.
      * 
      *  Will throw an Exception if validation fails,
@@ -336,6 +390,14 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
            default:
                throw new RuntimeException("LOGLEVEL UNKOWN: " + level.ordinal());
        }
+    }
+    
+    private static final Map<String,String> qosToEntityClassName = 
+            new HashMap<>();
+    
+    static {
+        qosToEntityClassName.put("QOS_TRTJBOSS_MEMORY_USAGE","br.jus.trt3.seit.probe.types.TrtJbossMemory");
+        qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER","br.jus.trt3.seit.probe.types.TrtJbossCounter");
     }
     
 }
