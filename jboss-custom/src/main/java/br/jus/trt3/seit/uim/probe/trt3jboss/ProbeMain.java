@@ -325,6 +325,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                         String monitorClassName = qosToEntityClassName.get(monitor.getQos())[0];
                         String monitorMetricName = qosToEntityClassName.get(monitor.getQos())[1];
 
+                        ProbeHelper.myLog("class  : " + monitorClassName);
+                        ProbeHelper.myLog("metric : " + monitorMetricName);
+                        
                         Method m = Class.forName(monitorClassName).getMethod("addInstance", 
                                                                     IInventoryDataset.class,
                                                                     ElementDef.class, 
@@ -332,17 +335,23 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                                                                     String.class,
                                                                     Element[].class);
                         
+                        ProbeHelper.myLog("Got method!");
+                        
                         Element uimElement = (Element) m.invoke(null, // addInstance is static
                                                                 inventoryDataset, 
                                                                 new EntityId(uimFolder,monitor.getName()),
                                                                 monitor.getName(),
                                                                 uimFolder);
 
+                        ProbeHelper.myLog("Method invoked OK!");
+                        
                         uimElement.setMetric(uimElement.getMetricDef(monitorMetricName), 1024); //TODO save data to collect later (jmx)
                     
+                        ProbeHelper.myLog("Metric set!");
+                        
                     } catch (ClassNotFoundException|NoSuchMethodException|IllegalAccessException|IllegalArgumentException|InvocationTargetException boom) {
                         ProbeHelper.myLog("INSTROSPECTION ERROR!",LogLevel.ERROR);
-                        throw new RuntimeException("KABOOM: " + boom.getMessage());
+                        throw new RuntimeException("KABOOM: " + boom.getMessage(),boom);
                     }
                     
                 }
