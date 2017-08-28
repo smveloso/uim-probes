@@ -1,9 +1,12 @@
 package br.jus.trt3.seit.uim.probe.trt3jboss;
 
+import br.jus.trt3.seit.uim.probe.JSONHelper;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.CustomConfigVO;
 import com.nimsoft.nimbus.NimException;
 import java.io.File;
 import com.nimsoft.pf.common.log.Log;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -14,18 +17,18 @@ public class ProbeHelper {
     // hard to test if left in ProbeMain (no default constructor)
     protected static CustomConfigVO readCustomConfig(File customConfigFile) throws NimException {
         myLog(">> readCustomConfig(File) -- " + customConfigFile.getAbsolutePath());
+
+        try {
         CustomConfigVO vo = new CustomConfigVO();
-        
-        
-        
-        
-        //} catch (Trt3ProbeException mapped) {
-        //    myLog("ERROR getting custom config for profile: " + mapped.getMessage(),LogLevel.ERROR);
-        //    throw new NimException(NimException.E_INVAL, "ERROR getting custom config for profile " + profileName, mapped);
-        //}
-        
+        JSONObject jsonObject = JSONHelper.getJSONObject(customConfigFile);
+
         myLog("<< readCustomConfig(File)");
         return vo;
+        
+        } catch (JSONException mapped) {
+            myLog("ERROR: " + mapped.getMessage(),LogLevel.ERROR);
+            throw new NimException(NimException.E_ERROR,"ERROR: " + mapped.getMessage(),mapped);
+        }
     }
 
     /** Logs a message as INFO
