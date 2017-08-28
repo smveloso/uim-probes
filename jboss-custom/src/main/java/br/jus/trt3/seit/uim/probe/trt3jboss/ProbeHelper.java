@@ -2,9 +2,11 @@ package br.jus.trt3.seit.uim.probe.trt3jboss;
 
 import br.jus.trt3.seit.uim.probe.JSONHelper;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.CustomConfigVO;
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Profile;
 import com.nimsoft.nimbus.NimException;
 import java.io.File;
 import com.nimsoft.pf.common.log.Log;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,6 +24,19 @@ public class ProbeHelper {
             CustomConfigVO vo = new CustomConfigVO();
             JSONObject jsonObject = JSONHelper.getJSONObject(customConfigFile);
 
+            //TODO pre-validate the structure
+
+            //TODO maybe I can use a newer version (jsonarray is iterable in newer versions)
+            
+            JSONArray profilesArray = jsonObject.getJSONArray("profiles");
+                    
+            for (int k=0; k<profilesArray.length();++k) {
+                JSONObject jsonProfile = profilesArray.getJSONObject(k);
+                Profile profile = extractProfile(jsonProfile);
+                myLog("Adding profile " + profile.getName(),LogLevel.DEBUG);
+                vo.addProfile(profile);
+            }
+            
             myLog("<< readCustomConfig(File)");
             return vo;
         
@@ -31,6 +46,15 @@ public class ProbeHelper {
         }
     }
 
+    protected static Profile extractProfile(JSONObject jsonProfile) throws JSONException {
+        Profile profile = new Profile();
+        
+        profile.setName(jsonProfile.getString("profile"));
+        
+        
+        return profile;
+    }
+    
     /** Logs a message as INFO
      *  Uses nimsoft´s log class
      * 
