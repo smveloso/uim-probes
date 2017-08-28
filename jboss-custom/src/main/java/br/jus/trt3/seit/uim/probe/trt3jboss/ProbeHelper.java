@@ -2,6 +2,7 @@ package br.jus.trt3.seit.uim.probe.trt3jboss;
 
 import br.jus.trt3.seit.uim.probe.JSONHelper;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.CustomConfigVO;
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Folder;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Profile;
 import com.nimsoft.nimbus.NimException;
 import java.io.File;
@@ -50,10 +51,33 @@ public class ProbeHelper {
         Profile profile = new Profile();
         
         profile.setName(jsonProfile.getString("profile"));
-        
+        extractFolders(profile,jsonProfile);
         
         return profile;
     }
+
+    private static void extractFolders(Profile profile, JSONObject jsonProfile) throws JSONException {
+        JSONArray foldersArray = jsonProfile.getJSONArray("folders");
+        for (int k=0;k<foldersArray.length();++k) {
+            JSONObject jsonFolder = foldersArray.getJSONObject(k);
+            Folder folder = extractFolder(jsonFolder);
+            profile.addFolder(folder);
+        }
+    }
+    
+    private static Folder extractFolder(JSONObject jsonFolder) throws JSONException {
+        Folder folder = new Folder();
+        
+        folder.setName(jsonFolder.getString("folder"));
+        extractMonitors(folder,jsonFolder);
+        
+        return folder;
+    }
+
+    private static void extractMonitors(Folder folder, JSONObject jsonFolder) {
+        
+    }
+ 
     
     /** Logs a message as INFO
      *  Uses nimsoft´s log class

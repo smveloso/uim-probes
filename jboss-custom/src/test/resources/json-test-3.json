@@ -26,7 +26,16 @@
     },
     {
     "profile":"anotherinstance",
-    "folders": [...]
+    "folders": 
+    [
+        {
+        "folder":"threads",
+        "monitors":
+        [
+            {"name":"Thread_Count","value":"java.lang:type=Threading\",ThreadCount","type":"QOS_TRTJBOSS_GENERIC_COUNTER"}
+        ]
+        }
+    ]
     }
  ]
 }

@@ -36,6 +36,7 @@ public class Profile {
         if (folders.containsKey(key)) {
             throw new IllegalArgumentException("Duplicate folder: " + key + " in profile: " + getName());
         }
+        folders.put(key, folder);
     }
     
 }
