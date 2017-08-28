@@ -17,9 +17,12 @@ import com.nimsoft.probe.framework.devkit.interfaces.IInventoryDataset;
 import com.nimsoft.probe.framework.devkit.InventoryDataset;
 import com.nimsoft.probe.framework.devkit.configuration.CtdPropertyDefinitionsList;
 import com.nimsoft.probe.framework.devkit.configuration.ResourceConfig;
+import com.nimsoft.probe.framework.devkit.inventory.Element;
 import com.nimsoft.probe.framework.devkit.inventory.typedefs.*;
 import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -317,9 +320,31 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                 for (String monitorName:folder.getMonitors().keySet()) {
                     Monitor monitor = folder.getMonitors().get(monitorName);
                     
-                    // TODO read the qos-name --> class map
-                    // TODO create the element
+                    try {
+                    
+                        String monitorClassName = qosToEntityClassName.get(monitor.getQos())[0];
+                        String monitorMetricName = qosToEntityClassName.get(monitor.getQos())[1];
 
+                        Method m = Class.forName(monitorClassName).getMethod("addInstance", 
+                                                                    IInventoryDataset.class,
+                                                                    ElementDef.class, 
+                                                                    EntityId.class,
+                                                                    String.class,
+                                                                    Element[].class);
+                        
+                        Element uimElement = (Element) m.invoke(null, // addInstance is static
+                                                                inventoryDataset, 
+                                                                new EntityId(uimFolder,monitor.getName()),
+                                                                monitor.getName(),
+                                                                uimFolder);
+
+                        uimElement.setMetric(uimElement.getMetricDef(monitorMetricName), 1024); //TODO save data to collect later (jmx)
+                    
+                    } catch (ClassNotFoundException|NoSuchMethodException|IllegalAccessException|IllegalArgumentException|InvocationTargetException boom) {
+                        ProbeHelper.myLog("INSTROSPECTION ERROR!",LogLevel.ERROR);
+                        throw new RuntimeException("KABOOM: " + boom.getMessage());
+                    }
+                    
                 }
 
             }
@@ -333,12 +358,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
     }
         
-    private static final Map<String,String> qosToEntityClassName = 
+    private static final Map<String,String[]> qosToEntityClassName = 
             new HashMap<>();
     
     static {
-        qosToEntityClassName.put("QOS_TRTJBOSS_MEMORY_USAGE","br.jus.trt3.seit.probe.types.TrtJbossMemory");
-        qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER","br.jus.trt3.seit.probe.types.TrtJbossCounter");
+        qosToEntityClassName.put("QOS_TRTJBOSS_MEMORY_USAGE",new String[]{"br.jus.trt3.seit.probe.types.TrtJbossMemory",""});
+        qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER",new String[]{"br.jus.trt3.seit.probe.types.TrtJbossCounter",""});
     }
 
 }
