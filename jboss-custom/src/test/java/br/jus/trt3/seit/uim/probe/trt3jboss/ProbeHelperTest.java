@@ -3,6 +3,7 @@ package br.jus.trt3.seit.uim.probe.trt3jboss;
 import br.jus.trt3.seit.uim.probe.TestUtil;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.CustomConfigVO;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Folder;
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Monitor;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Profile;
 import java.io.File;
 import org.apache.log4j.Logger;
@@ -93,8 +94,19 @@ public class ProbeHelperTest {
         
         assertEquals("profile 1 folder 1 has wrong count of monitors",EXPECTED_PROFILE1_FOLDER1_MONITOR_COUNT,profile1Folder1.getMonitors().size());
         assertEquals("profile 1 folder 2 has wrong count of monitors",EXPECTED_PROFILE1_FOLDER2_MONITOR_COUNT,profile1Folder2.getMonitors().size());
-        assertEquals("profile 2 folder 1 has wrong count of monitors",EXPECTED_PROFILE2_FOLDER1_MONITOR_COUNT,profile1Folder1.getMonitors().size());
+        assertEquals("profile 2 folder 1 has wrong count of monitors",EXPECTED_PROFILE2_FOLDER1_MONITOR_COUNT,profile2Folder1.getMonitors().size());
 
+        String PROFILE1_FOLDER1_MONITOR1_NAME = "CMS_Old_Gen_Max";
+        String PROFILE1_FOLDER1_MONITOR1_VALUE = "java.lang:type=MemoryPool,name=CMS Old Gen\",Usage.max";
+        String PROFILE1_FOLDER1_MONITOR1_QOS = "QOS_TRTJBOSS_MEMORY_USAGE";
+        
+        Monitor profile1Folder1Monitor1 = profile1Folder1.getMonitors().get(PROFILE1_FOLDER1_MONITOR1_NAME);
+        
+        assertNotNull("p1 f1 m1 not found by name",profile1Folder1Monitor1);
+        assertEquals("p1 f1 m1 has wrong name",PROFILE1_FOLDER1_MONITOR1_NAME,profile1Folder1Monitor1.getName());
+        assertEquals("p1 f1 m1 has wrong value",PROFILE1_FOLDER1_MONITOR1_VALUE,profile1Folder1Monitor1.getValue());
+        assertEquals("p1 f1 m1 has wrong qos",PROFILE1_FOLDER1_MONITOR1_QOS,profile1Folder1Monitor1.getQos());
+        
         logger.debug("<< testReadCustomConfig()");
     }
     
