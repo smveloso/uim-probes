@@ -19,6 +19,14 @@ public class TestUtil {
     
     private static final Logger logger = Logger.getLogger(TestUtil.class);
     
+    public static File getTestFileObject(String fileName) {
+        File file = new File(Thread.currentThread().getContextClassLoader().getResource(fileName).getFile());
+        if (!file.exists()) {
+            throw new RuntimeException("Cannot find file using path: " + file.getAbsolutePath());
+        }
+        return file;
+    }
+    
     public static LineNumberReader getTestFileContents(String fileName) {
         LineNumberReader lnr;
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);

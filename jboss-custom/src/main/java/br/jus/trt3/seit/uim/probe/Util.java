@@ -17,7 +17,7 @@ public class Util {
             Integer theInteger = Integer.parseInt(txt);
             return theInteger;
         } catch (NumberFormatException mapped) {
-            throw new Trt3ProbeException("string not convertible to integer: " + txt, mapped);
+            throw new Trt3ProbeException("String not convertible to integer: " + txt, mapped);
         }
     }
     
@@ -25,7 +25,7 @@ public class Util {
         try {
             return InetAddress.getByName(txt);
         } catch (UnknownHostException mapped) {
-            throw new Trt3ProbeException("string is not an ip address: " + txt, mapped);
+            throw new Trt3ProbeException("String is not an ip address: " + txt, mapped);
         }
     }
     

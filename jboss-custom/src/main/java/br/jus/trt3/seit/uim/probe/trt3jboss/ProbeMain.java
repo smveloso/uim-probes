@@ -85,13 +85,13 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     public ProbeMain(String[] args) throws NimException {
         super(args, PROBE_NAME, PROBE_VERSION, PROBE_VENDOR);
-        myLog(">> ProbeMain(String[])", LogLevel.DEBUG);
+        ProbeHelper.myLog(">> ProbeMain(String[])", LogLevel.DEBUG);
         // Indicate this is a local probe
         setLocalMode(true);
         //useShortTargetName(true); local_dirscan does this
-        myLog("<< ProbeMain(String[])", LogLevel.DEBUG);
+        ProbeHelper.myLog("<< ProbeMain(String[])", LogLevel.DEBUG);
     }
-
+    
     /**
      * This is where you configure what you want to display in the probe configuration UI.
      * 
@@ -102,7 +102,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     @Override
     public void addDefaultProbeConfigurationToGraph() {
         
-        myLog(">> addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
+        ProbeHelper.myLog(">> addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
         
         // Add standard actions to add/delete/verify a profile        
         ElementDef resDef = ElementDef.getElementDef("RESOURCE");
@@ -137,7 +137,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
-        myLog("<< addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
+        ProbeHelper.myLog("<< addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
     }
  
     /**
@@ -169,25 +169,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public IInventoryDataset testResource(ResourceConfig res) throws NimException, InterruptedException {  
-        myLog("==== testResource: " + res.getName());
-        myLog(">> testResource(ResourceConfig)");
-        
-        /**
-         * ***** Insert your test logic here *****
-         * If your test is successful you need not do anything, simply 
-         * allow this method to return null. If you need to report an error
-         * then throw a NimException
-         */
-        
-        try {
-            validateResourceConfiguration(res);
-        } catch (Trt3ProbeException mapped) {
-            throw new NimException(NimException.E_INVAL, mapped.getMessage(), mapped);
-        }
-        
-        // If we get to here then our tests were successful. Since we dont have 
-        // any advanced information we wish to return we can simply return null
-        myLog("<< testResource(ResourceConfig)");
+        ProbeHelper.myLog(">> testResource(ResourceConfig) for " + res.getName());
+        validateResourceConfiguration(res);
+        ProbeHelper.myLog("<< testResource(ResourceConfig)");
         return null;
     }
     
@@ -204,47 +188,31 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      * interface {@code IProbeInventoryCollection}. You will need to implement these methods if your 
      * probe implements {@code IProbeInventoryCollection}. Please see the JavaDoc on that interface 
      * for more details.
+     * @param resourceConfig
+     * @param previousDataset
+     * @return 
+     * @throws com.nimsoft.nimbus.NimException
+     * @throws java.lang.InterruptedException
      */
     @Override
     public IInventoryDataset getUpdatedInventory(ResourceConfig resourceConfig, IInventoryDataset previousDataset) throws NimException, InterruptedException {
-        // A recommended best practice is to read configuration information
-        // on each call to getUpdatedInventory(). This ensures configuration changes
-        // take effect without the need for a full restart of the probe.
-        // Also, please note that the configuration information is cached by the 
-        // framework, so there is very low overhead here.
+        ProbeHelper.myLog(">> getUpdatedInventory(ResourceConfig,IInventoryDataset)");
         int counter = resourceConfig.updateCounter;
-        
-        myLog(">> getUpdatedInventory(ResourceConfig,IInventoryDataset)");
-        
         String profileName = resourceConfig.getName();
         
-        myLog("Pass    : " + counter);
-        myLog("Profile : " + profileName);
+        ProbeHelper.myLog("Pass    : " + counter);
+        ProbeHelper.myLog("Profile : " + profileName);
         
-        ProfileVO voProfile = null;
-        try {
-            voProfile = validateResourceConfiguration(resourceConfig);
-        } catch (Trt3ProbeException mapped) {
-            myLog("ERROR getting vo for profile: " + mapped.getMessage(),LogLevel.ERROR);
-            throw new NimException(NimException.E_INVAL, "ERROR getting vo for profile", mapped);
-        }
-        
-        myLog(voProfile.toString());
-        
+        ProfileVO voProfile = validateResourceConfiguration(resourceConfig);
+        ProbeHelper.myLog("vo profile:");
+        ProbeHelper.myLog(voProfile.toString());
+
+        CustomConfigVO voConfig = ProbeHelper.readCustomConfig(voProfile.getCustomConfigFile());
+       
         // Create a new empty InventoryDataset
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
-        
-        //TODO: Ler o arquivo de configuração e criar a estrutura usando os Elements 
-        //      definidos em probe_schema.xml
 
-        CustomConfigVO voConfig = null;
-                
-        try {
-            voConfig = getCustomConfig(voProfile.getCustomConfigFile());
-        } catch (Trt3ProbeException mapped) {
-            myLog("ERROR getting custom config for profile: " + mapped.getMessage(),LogLevel.ERROR);
-            throw new NimException(NimException.E_INVAL, "ERROR getting custom config for profile " + profileName, mapped);
-        }
+        buildStructure(inventoryDataset,resourceConfig,voProfile,voConfig);
         
         // locate the entry that matches the current profile
         if (voConfig.getProfiles().containsKey(profileName)) {
@@ -270,10 +238,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
             
             
         } else {
-            myLog("COULD NOT FIND CUSTOM CONFIG FOR PROFILE: " + profileName,LogLevel.WARN);
+            ProbeHelper.myLog("COULD NOT FIND CUSTOM CONFIG FOR PROFILE: " + profileName,LogLevel.WARN);
         }
-        
-        
+
         TrtJbossMemory heapMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("HeapMemory"), "HeapMemory", resourceConfig);
         heapMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
 
@@ -281,17 +248,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         youngGenMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
         
         
-        myLog("<< getUpdatedInventory(...)");
+        ProbeHelper.myLog("<< getUpdatedInventory(...)");
         return inventoryDataset;
-    }
-
-    private CustomConfigVO getCustomConfig(File customConfigFile) throws Trt3ProbeException {
-        myLog(">> getCustomConfig(File) -- " + customConfigFile.getAbsolutePath());
-        CustomConfigVO vo = new CustomConfigVO();
-        
-        
-        myLog("<< getCustomConfig(File)");
-        return vo;
     }
     
     /** Invoked from 'testResource'.
@@ -306,92 +264,61 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      * 
      * @param res 
      */
-    private ProfileVO validateResourceConfiguration(ResourceConfig res) throws Trt3ProbeException {
-        myLog(">> validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
-        
-        ProfileVO vo = new ProfileVO();
-        
-        String jbossVersionString = res.getResourceProperty(PROFILE_JBOSS_VERSION_PROP);
-        if (jbossVersionString != null) {
-            int jbossVersion = Util.toInteger(jbossVersionString);
-            if (jbossVersion < MIN_JBOSS_VERSION || jbossVersion > MAX_JBOSS_VERSION) {
-                throw new Trt3ProbeException("not a valid jboss version: " + jbossVersion);
+    private ProfileVO validateResourceConfiguration(ResourceConfig res) throws NimException {
+        ProbeHelper.myLog(">> validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
+        try {
+            ProfileVO vo = new ProfileVO();        
+            String jbossVersionString = res.getResourceProperty(PROFILE_JBOSS_VERSION_PROP);
+            if (jbossVersionString != null) {
+                int jbossVersion = Util.toInteger(jbossVersionString);
+                if (jbossVersion < MIN_JBOSS_VERSION || jbossVersion > MAX_JBOSS_VERSION) {
+                    throw new NimException(NimException.E_INVAL,"Not a valid jboss version: " + jbossVersion);
+                }
+                vo.setJbossVersion(jbossVersion);
+            }    
+
+            String jbossPortString = res.getResourceProperty(PROFILE_JBOSS_PORT_PROP);
+            if (jbossPortString != null) {
+                int jbossPort = Util.toInteger(jbossPortString);
+                if (jbossPort < MIN_JBOSS_PORT || jbossPort > MAX_JBOSS_PORT) {
+                    throw new Trt3ProbeException("not a valid jboss port: " + jbossPort);
+                }
+                vo.setJbossPort(jbossPort);
             }
-            vo.setJbossVersion(jbossVersion);
-        }
-        
-        String jbossPortString = res.getResourceProperty(PROFILE_JBOSS_PORT_PROP);
-        if (jbossPortString != null) {
-            int jbossPort = Util.toInteger(jbossPortString);
-            if (jbossPort < MIN_JBOSS_PORT || jbossPort > MAX_JBOSS_PORT) {
-                throw new Trt3ProbeException("not a valid jboss port: " + jbossPort);
+
+            String jbossIpString = res.getResourceProperty(PROFILE_JBOSS_IP_PROP);
+            if (jbossIpString != null) {
+                vo.setJbossIp(Util.toIpAddress(jbossIpString));
             }
-            vo.setJbossPort(jbossPort);
-        }
-        
-        String jbossIpString = res.getResourceProperty(PROFILE_JBOSS_IP_PROP);
-        if (jbossIpString != null) {
-            vo.setJbossIp(Util.toIpAddress(jbossIpString));
-        }
 
-        String jbossCustomConfigFile = res.getResourceProperty(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP);
-        File jbossFile;
-        if (jbossCustomConfigFile != null) {
-            jbossFile = new File(jbossCustomConfigFile);
-        } else {
-            jbossFile = vo.getCustomConfigFile(); // uses the default
-        }
-        
-        if (!jbossFile.exists() || !jbossFile.canRead()) {
-           throw new Trt3ProbeException("not a valid config file: " + jbossFile.getAbsolutePath()); 
-        }
+            String jbossCustomConfigFile = res.getResourceProperty(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP);
+            File jbossFile;
+            if (jbossCustomConfigFile != null) {
+                jbossFile = new File(jbossCustomConfigFile);
+            } else {
+                jbossFile = vo.getCustomConfigFile(); // uses the default
+            }
 
-        vo.setCustomConfigFile(jbossFile);
-        
-        myLog("<< validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
-        return vo;
+            if (!jbossFile.exists() || !jbossFile.canRead()) {
+               throw new Trt3ProbeException("not a valid config file: " + jbossFile.getAbsolutePath()); 
+            }
+
+            vo.setCustomConfigFile(jbossFile);
+
+            ProbeHelper.myLog("<< validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
+            return vo;
+        } catch (Trt3ProbeException mapped) {
+            ProbeHelper.myLog("Error reading profile parameters: " + mapped.getMessage(),LogLevel.ERROR);
+            throw new NimException(NimException.E_INVAL, "Error reading profile parameters: " + mapped.getMessage(), mapped);
+        }            
     }
 
-    /** Logs a message as INFO
-     *  Uses nimsoft´s log class
-     * 
-     * @param message Text to write to log output.
-     */
-    private void myLog(String message) {
-        myLog(message,LogLevel.INFO);
+    protected void buildStructure(InventoryDataset inventoryDataset, ResourceConfig resourceConfig, ProfileVO voProfile, CustomConfigVO voConfig) {
+        ProbeHelper.myLog(">> buildStructure(...)");
+        ProbeHelper.myLog("NO OP!",LogLevel.WARN);
+        ProbeHelper.myLog("<< buildStructure(...)");
     }
-
-    /** Logs a message using specified level.
-     *  Uses nimsoft´s log class
-     * 
-     * @param message Text to write to log output.
-     */    
-    private void myLog(String message, LogLevel level) {
-        message = "[TRT3] |" + message;
-        switch(level.ordinal()) {
-           case 0:
-               Log.fatal(message);
-               break;
-           case 1:
-               Log.error(message);
-               break;
-           case 2:
-               Log.warn(message);
-               break;
-           case 3:
-               Log.info(message);
-               break;
-           case 4:
-               Log.debug(message);
-               break;
-           case 5:
-               Log.trace(message);
-               break;
-           default:
-               throw new RuntimeException("LOGLEVEL UNKOWN: " + level.ordinal());
-       }
-    }
-    
+        
     private static final Map<String,String> qosToEntityClassName = 
             new HashMap<>();
     
@@ -399,5 +326,5 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         qosToEntityClassName.put("QOS_TRTJBOSS_MEMORY_USAGE","br.jus.trt3.seit.probe.types.TrtJbossMemory");
         qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER","br.jus.trt3.seit.probe.types.TrtJbossCounter");
     }
-    
+
 }

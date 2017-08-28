@@ -1,18 +1,3 @@
-package br.jus.trt3.seit.uim.probe.trt3jboss.customconfig;
-
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * 
-
-A profile has 'n' folders, each one with 'm' targets.
-
-profile ---> uim profile.
-folder  ---> no correspondence. ui effect.
-target  ---> uim target, possibly combined with folder.
-a target´s (single) jmx item corresponds to a (single) uim monitor
- 
 {"profiles":
  [
     {
@@ -45,24 +30,3 @@ a target´s (single) jmx item corresponds to a (single) uim monitor
     }
  ]
 }
- *
- * @author sergiomv
- */
-public class CustomConfigVO {
-    
-    private Map<String,Profile> profiles = new HashMap<>();
-
-    public Map<String, Profile> getProfiles() {
-        return profiles;
-    }
-
-    public void addProfile(Profile profile) {
-        String key = profile.getName();
-        if (profiles.containsKey(key)) {
-            throw new IllegalArgumentException("Duplicate profile: " + key);
-        }
-        profiles.put(key, profile);
-    }
-    
-}
-

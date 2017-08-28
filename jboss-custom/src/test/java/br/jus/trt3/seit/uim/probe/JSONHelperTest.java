@@ -102,6 +102,57 @@ public class JSONHelperTest {
         assertEquals("2. wrong value for monitor 0 of element 0",valueMonitor_1_1,element0monitors0.getString("value"));
         assertEquals("2. wrong type for monitor 0 of element 0","B",element0monitors0.getString("type"));
         
+        // ------ 3
+        
+        testFileName = "json-test-3.json";
+        jsonText = TestUtil.getAllLinesAsString(testFileName);
+
+        String rootKey = "profiles";
+        String keyProfile = "profile";
+        String keyFolders = "folders";
+        String keyFolder = "folder";
+        keyMonitors = "monitors";
+        
+        String keyMonitorName = "name";
+        String keyMonitorValue = "value";
+        String keyMonitorType = "type";
+        
+        jsonObject = JSONHelper.getJSONObject(jsonText);
+        
+        assertNotNull("3. null jsonobject",jsonObject);
+        JSONArray profiles = jsonObject.getJSONArray(rootKey);
+        int profilesLength = 2;
+        assertNotNull("3. null root jsonarray",profiles);
+        assertEquals("3. root jsonarray has wrong number of elements",profilesLength,profiles.length());
+        
+        String firstProfileName = "instancia01";
+        String secondProfileName = "anotherinstance";
+        
+        assertEquals("3. 1st profile has wrong name",firstProfileName,profiles.getJSONObject(0).getString(keyProfile));
+        assertEquals("3. 2nd profile has wrong name",secondProfileName,profiles.getJSONObject(1).getString(keyProfile));
+        
+        JSONArray firstProfileFolders = profiles.getJSONObject(0).getJSONArray(keyFolders);
+        assertNotNull("3. 1st profile folders array is null",firstProfileFolders);
+        assertEquals("3. 1st profile folders array has wrong length",2,firstProfileFolders.length());
+        
+        JSONArray secondProfileFolders = profiles.getJSONObject(1).getJSONArray(keyFolders);
+        assertNotNull("3. 2nd profile folders array is null",secondProfileFolders);
+        assertEquals("3. 2nd profile folders array has wrong length",1,secondProfileFolders.length());
+        
+        String firstProfileFolderOneName = "memorypool";
+        String firstProfileFolderTwoName = "gc";
+        
+        assertEquals("3. 1st profile folder one has wrong name",firstProfileFolderOneName,firstProfileFolders.getJSONObject(0).getString(keyFolder));
+        assertEquals("3. 1st profile folder two has wrong name",firstProfileFolderTwoName,firstProfileFolders.getJSONObject(1).getString(keyFolder));
+        
+        assertEquals("3. 1st profile folder one has wrong number of monitors",2,firstProfileFolders.getJSONObject(0).getJSONArray(keyMonitors).length());
+
+        JSONObject firstProfileFolderOneMonitorOne = firstProfileFolders.getJSONObject(0).getJSONArray(keyMonitors).getJSONObject(0);
+        assertNotNull("3. 1st profile folder one monitor one is null", firstProfileFolderOneMonitorOne);
+        assertEquals("3. 1st profile folder one monitor one has wrong name", "CMS_Old_Gen_Max" , firstProfileFolderOneMonitorOne.getString(keyMonitorName));
+        assertEquals("3. 1st profile folder one monitor one has wrong value", "java.lang:type=MemoryPool,name=CMS Old Gen\",Usage.max" , firstProfileFolderOneMonitorOne.getString(keyMonitorValue));
+        assertEquals("3. 1st profile folder one monitor one has wrong type", "QOS_TRTJBOSS_MEMORY_USAGE" , firstProfileFolderOneMonitorOne.getString(keyMonitorType));
+        
         logger.debug("<< testGetJSONObject()");
     }
     
