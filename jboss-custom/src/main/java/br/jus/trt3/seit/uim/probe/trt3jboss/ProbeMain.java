@@ -371,8 +371,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
             new HashMap<>();
     
     static {
-        qosToEntityClassName.put("QOS_TRTJBOSS_MEMORY_USAGE",new String[]{"br.jus.trt3.seit.probe.types.TrtJbossMemory",""});
-        qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER",new String[]{"br.jus.trt3.seit.probe.types.TrtJbossCounter",""});
+        qosToEntityClassName.put("QOS_TRTJBOSS_MEMORY_USAGE",new String[]{"br.jus.trt3.seit.uim.probe.types.TrtJbossMemory","TrtJbossMemoryUsage"});
+        qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER",new String[]{"br.jus.trt3.seit.uim.probe.types.TrtJbossCounter","TrtJbossCounter"});
     }
 
 }
