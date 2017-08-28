@@ -330,7 +330,6 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                         
                         Method m = Class.forName(monitorClassName).getMethod("addInstance", 
                                                                     IInventoryDataset.class,
-                                                                    ElementDef.class, 
                                                                     EntityId.class,
                                                                     String.class,
                                                                     Element[].class);

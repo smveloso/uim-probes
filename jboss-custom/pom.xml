@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.jus.trt3.seit.uim.probe</groupId>
     <artifactId>trt3jboss</artifactId>
-    <version>0.96-SNAPSHOT</version>
+    <version>0.961-SNAPSHOT</version>
 
     <properties>
 
