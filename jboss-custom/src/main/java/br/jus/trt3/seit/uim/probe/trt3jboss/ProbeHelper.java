@@ -19,11 +19,11 @@ public class ProbeHelper {
         myLog(">> readCustomConfig(File) -- " + customConfigFile.getAbsolutePath());
 
         try {
-        CustomConfigVO vo = new CustomConfigVO();
-        JSONObject jsonObject = JSONHelper.getJSONObject(customConfigFile);
+            CustomConfigVO vo = new CustomConfigVO();
+            JSONObject jsonObject = JSONHelper.getJSONObject(customConfigFile);
 
-        myLog("<< readCustomConfig(File)");
-        return vo;
+            myLog("<< readCustomConfig(File)");
+            return vo;
         
         } catch (JSONException mapped) {
             myLog("ERROR: " + mapped.getMessage(),LogLevel.ERROR);
