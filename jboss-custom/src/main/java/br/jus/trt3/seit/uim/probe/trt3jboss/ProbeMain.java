@@ -4,6 +4,7 @@ import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.CustomConfigVO;
 import br.jus.trt3.seit.uim.probe.Trt3ProbeException;
 import br.jus.trt3.seit.uim.probe.Util;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Folder;
+import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Monitor;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Profile;
 import br.jus.trt3.seit.uim.probe.types.*;
 
@@ -207,46 +208,18 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         ProbeHelper.myLog("vo profile:");
         ProbeHelper.myLog(voProfile.toString());
 
-        CustomConfigVO voConfig = ProbeHelper.readCustomConfig(voProfile.getCustomConfigFile());
-       
         // Create a new empty InventoryDataset
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
-
-        buildStructure(inventoryDataset,resourceConfig,voProfile,voConfig);
         
-        // locate the entry that matches the current profile
-        if (voConfig.getProfiles().containsKey(profileName)) {
-            Profile profile = voConfig.getProfiles().get(profileName);
-            
-            // for each Folder ...
-            for (String folderName:profile.getFolders().keySet()) {
-                Folder folder = profile.getFolders().get(folderName);
-                com.nimsoft.probe.framework.devkit.inventory.Folder uimFolder = 
-                        com.nimsoft.probe.framework.devkit.inventory.Folder
-                                .addInstance(inventoryDataset, 
-                                             new EntityId(resourceConfig,folder.getName()), 
-                                             folder.getName(), 
-                                             resourceConfig);
-                
-            // TODO read the qos-name --> class map
-            // TODO create the element
- 
-                
-            }
- 
-            // TODO get the jmx item value !!! all at once ? use loop above (too slow ???)
-            
-            
+        File customConfigFile = voProfile.getCustomConfigFile();
+        
+        // we dont want an error if the file is not there
+        if (customConfigFile.exists()) {        
+            CustomConfigVO voConfig = ProbeHelper.readCustomConfig(customConfigFile);
+            buildStructure(inventoryDataset,resourceConfig,voProfile,voConfig,profileName);
         } else {
-            ProbeHelper.myLog("COULD NOT FIND CUSTOM CONFIG FOR PROFILE: " + profileName,LogLevel.WARN);
+            ProbeHelper.myLog("COULD NOT FIND CUSTOM CONFIG FILE: " + customConfigFile.getName());
         }
-
-        TrtJbossMemory heapMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("HeapMemory"), "HeapMemory", resourceConfig);
-        heapMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
-
-        TrtJbossMemory youngGenMemory = TrtJbossMemory.addInstance(inventoryDataset, new EntityId("YGMemory"), "YGMemory", resourceConfig);
-        youngGenMemory.setMetric(TrtJbossMemory.TrtJbossMemoryUsage, 1024);
-        
         
         ProbeHelper.myLog("<< getUpdatedInventory(...)");
         return inventoryDataset;
@@ -313,10 +286,51 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         }            
     }
 
-    protected void buildStructure(InventoryDataset inventoryDataset, ResourceConfig resourceConfig, ProfileVO voProfile, CustomConfigVO voConfig) {
+    protected void buildStructure(InventoryDataset inventoryDataset, 
+                                  ResourceConfig resourceConfig, 
+                                  ProfileVO voProfile, 
+                                  CustomConfigVO voConfig,
+                                  String profileName) throws NimException, 
+                                                             InterruptedException {
         ProbeHelper.myLog(">> buildStructure(...)");
-        ProbeHelper.myLog("NO OP!",LogLevel.WARN);
-        ProbeHelper.myLog("<< buildStructure(...)");
+        
+        // locate the entry that matches the current profile
+        if (voConfig.getProfiles().containsKey(profileName)) {
+            Profile profile = voConfig.getProfiles().get(profileName);
+            ProbeHelper.myLog("profile found: " + profileName);
+            ProbeHelper.myLog("# folders: " + profile.getFolders().size());
+            
+            // for each Folder ...
+            for (String folderName:profile.getFolders().keySet()) {
+                Folder folder = profile.getFolders().get(folderName);
+                ProbeHelper.myLog("folder     : " + folderName);
+                ProbeHelper.myLog("# monitors : " + folder.getMonitors().size());
+                
+                com.nimsoft.probe.framework.devkit.inventory.Folder uimFolder = 
+                        com.nimsoft.probe.framework.devkit.inventory.Folder
+                                .addInstance(inventoryDataset, 
+                                             new EntityId(resourceConfig,folder.getName()), 
+                                             folder.getName(), 
+                                             resourceConfig);
+                
+                // for each Monitor ...
+                for (String monitorName:folder.getMonitors().keySet()) {
+                    Monitor monitor = folder.getMonitors().get(monitorName);
+                    
+                    // TODO read the qos-name --> class map
+                    // TODO create the element
+
+                }
+
+            }
+ 
+            // TODO get the jmx item value !!! all at once ? use loop above (too slow ???)
+
+        } else {
+            ProbeHelper.myLog("COULD NOT FIND CUSTOM CONFIG FOR PROFILE: " + profileName,LogLevel.WARN);
+            ProbeHelper.myLog("DOING NOTHING",LogLevel.WARN);
+        }
+
     }
         
     private static final Map<String,String> qosToEntityClassName = 
