@@ -340,7 +340,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                                                                 inventoryDataset, 
                                                                 new EntityId(uimFolder,monitor.getName()),
                                                                 monitor.getName(),
-                                                                uimFolder);
+                                                                new Element[] {uimFolder});
 
                         ProbeHelper.myLog("Method invoked OK!");
                         
