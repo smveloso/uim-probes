@@ -336,10 +336,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                         
                         ProbeHelper.myLog("Got method!");
                         
+                        String target = profileName + ":" + monitor.getName();
+                        
                         Element uimElement = (Element) m.invoke(null, // addInstance is static
                                                                 inventoryDataset, 
-                                                                new EntityId(uimFolder,monitor.getName()),
-                                                                monitor.getName(),
+                                                                new EntityId(uimFolder,target),
+                                                                target,
                                                                 new Element[] {uimFolder});
 
                         ProbeHelper.myLog("Method invoked OK!");
