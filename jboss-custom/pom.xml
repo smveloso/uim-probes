@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.jus.trt3.seit.uim.probe</groupId>
     <artifactId>trt3jboss</artifactId>
-    <version>0.963-SNAPSHOT</version>
+    <version>0.97-SNAPSHOT</version>
 
     <properties>
 
@@ -49,6 +49,19 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.zabbix</groupId>
+            <artifactId>gateway</artifactId>
+            <version>3.2.4.trt3-SNAPSHOT</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
     </dependencies>
