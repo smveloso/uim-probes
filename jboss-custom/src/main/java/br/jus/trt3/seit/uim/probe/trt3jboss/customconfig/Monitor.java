@@ -18,6 +18,12 @@ public class Monitor {
     // to the uim hub
     private String qos;
 
+    // the value of the jmx item
+    private Object metricValue;
+    
+    // wether the metricValue was successfully collected
+    private boolean valueCollected;
+    
     public String getName() {
         return name;
     }
@@ -41,4 +47,21 @@ public class Monitor {
     public void setQos(String qos) {
         this.qos = qos;
     }
+
+    public Object getMetricValue() {
+        return metricValue;
+    }
+
+    public void setMetricValue(Object metricValue) {
+        this.metricValue = metricValue;
+    }
+
+    public boolean isValueCollected() {
+        return valueCollected;
+    }
+
+    public void setValueCollected(boolean valueCollected) {
+        this.valueCollected = valueCollected;
+    }
+    
 }

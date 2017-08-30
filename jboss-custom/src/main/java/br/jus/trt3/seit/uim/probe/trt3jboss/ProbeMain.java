@@ -6,7 +6,6 @@ import br.jus.trt3.seit.uim.probe.Util;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Folder;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Monitor;
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Profile;
-import br.jus.trt3.seit.uim.probe.types.*;
 
 import com.nimsoft.pf.common.pom.MvnPomVersion;
 import com.nimsoft.nimbus.NimException;
@@ -23,7 +22,9 @@ import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
@@ -303,6 +304,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
             ProbeHelper.myLog("profile found: " + profileName);
             ProbeHelper.myLog("# folders: " + profile.getFolders().size());
             
+            List<ElementMonitorHolder> elementMonitorList = new ArrayList<>();
+            
             // for each Folder ...
             for (String folderName:profile.getFolders().keySet()) {
                 Folder folder = profile.getFolders().get(folderName);
@@ -334,7 +337,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                                                                     String.class,
                                                                     Element[].class);
                         
-                        ProbeHelper.myLog("Got method!");
+                        ProbeHelper.myLog("Got method addInstance via reflection!",LogLevel.DEBUG);
                         
                         String target = profileName + ":" + monitor.getName();
                         
@@ -344,11 +347,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                                                                 target,
                                                                 new Element[] {uimFolder});
 
-                        ProbeHelper.myLog("Method invoked OK!");
+                        ProbeHelper.myLog("Method invoked to create and register the element OK!",LogLevel.DEBUG);
                         
-                        uimElement.setMetric(uimElement.getMetricDef(monitorMetricName), 1024); //TODO save data to collect later (jmx)
-                    
-                        ProbeHelper.myLog("Metric set!");
+                        elementMonitorList.add(new ElementMonitorHolder(uimElement, monitor));
+                        
+                        //uimElement.setMetric(uimElement.getMetricDef(monitorMetricName), 1024); //TODO save data to collect later (jmx)
+                        //ProbeHelper.myLog("Metric set!",LogLevel.DEBUG);
                         
                     } catch (ClassNotFoundException|NoSuchMethodException|IllegalAccessException|IllegalArgumentException|InvocationTargetException boom) {
                         ProbeHelper.myLog("INSTROSPECTION ERROR!",LogLevel.ERROR);
@@ -376,4 +380,38 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER",new String[]{"br.jus.trt3.seit.uim.probe.types.TrtJbossCounter","TrtJbossCounter"});
     }
 
+    static class ElementMonitorHolder {
+        
+        private Element element;
+        private Monitor monitor;
+
+        public ElementMonitorHolder(Element element, Monitor monitor) {
+            this.element = element;
+            this.monitor = monitor;
+        }
+        
+        public Element getElement() {
+            return element;
+        }
+
+        public Monitor getMonitor() {
+            return monitor;
+        }
+        
+    }
+    
+    static class ElementMonitorList {
+        
+        private List<ElementMonitorHolder> list = new ArrayList<>();
+
+        public List<ElementMonitorHolder> getList() {
+            return list;
+        }
+        
+        public void add(ElementMonitorHolder holder) {
+            list.add(holder);
+        }
+        
+    }
+    
 }
