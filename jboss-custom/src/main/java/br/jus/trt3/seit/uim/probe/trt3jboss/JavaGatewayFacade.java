@@ -1,6 +1,8 @@
 package br.jus.trt3.seit.uim.probe.trt3jboss;
 
 import br.jus.trt3.seit.uim.probe.trt3jboss.customconfig.Monitor;
+import com.zabbix.gateway.JMXItemChecker;
+import com.zabbix.gateway.ZabbixException;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -46,45 +48,54 @@ public class JavaGatewayFacade {
         this.jbossVersion = jbossVersion;
     }
     
-    public void collect(ProbeMain.ElementMonitorList list) throws JSONException {
+    public void collect(ProbeMain.ElementMonitorList list) throws JavaGatewayException {
         
-        JSONObject request = new JSONObject();
-        
-        request.put("request","java gateway jmx");
-        request.put("conn",jbossServer);
-        request.put("port",jbossInstancePort);
-        request.put("jbossVersion",jbossVersion);
-        
-        //TODO username
-        //TODO password
-        
-        List<String> keyList = new ArrayList<String>();
-        
-        for (ProbeMain.ElementMonitorHolder holder:list.getList()) {
-            String jmxItem = holder.getMonitor().getValue();
-            jmxItem = "jmx[" + jmxItem + "]";
-            keyList.add(jmxItem);
-        }
-        
-        request.put("keys", keyList);
-        
-        //TODO will need JMXItemChecker to be public
-        //JMXItemChecker jmxItemChecker = new JMXItemChecker(request);
-        JSONArray response = null;
-        //JSONArray response = jmxItemChecker.getValues();
-        
-        for (int k=0; k<response.length();++k) {
-            JSONObject jsonObject = response.getJSONObject(k);
-            if (null == jsonObject.optString("error") && null != jsonObject.optString("value")) {
-                String value = jsonObject.getString("value");
-                list.getList().get(k).getMonitor().setMetricValue(value);
-                list.getList().get(k).getMonitor().setValueCollected(true);
-            };
+        try {
+            JSONObject request = new JSONObject();
+
+            request.put("request","java gateway jmx");
+            request.put("conn",jbossServer);
+            request.put("port",jbossInstancePort);
+            request.put("jbossVersion",jbossVersion);
+
+            //TODO username
+            //TODO password
+
+            List<String> keyList = new ArrayList<String>();
+
+            for (ProbeMain.ElementMonitorHolder holder:list.getList()) {
+                String jmxItem = holder.getMonitor().getValue();
+                jmxItem = "jmx[" + jmxItem + "]";
+                keyList.add(jmxItem);
+            }
+
+            request.put("keys", keyList);
+
+            JMXItemChecker jmxItemChecker = new JMXItemChecker(request);
+
+            ProbeHelper.myLog("About to invoke checker.getValues() ...");
+            JSONArray response = jmxItemChecker.getValues();
+            ProbeHelper.myLog("... back from checker.getValues()!");
             
+            for (int k=0; k<response.length();++k) {
+                JSONObject jsonObject = response.getJSONObject(k);
+                if (null == jsonObject.optString("error") && null != jsonObject.optString("value")) {
+                    String value = jsonObject.getString("value");
+                    list.getList().get(k).getMonitor().setMetricValue(value);
+                    list.getList().get(k).getMonitor().setValueCollected(true);
+                };
+            }
+
+        } catch (JSONException mapped) {
+            String msg = "JSON EXCEPTION: " + mapped.getMessage();
+            ProbeHelper.myLog(msg, LogLevel.ERROR);
+            throw new JavaGatewayException(msg,mapped);
+        } catch (ZabbixException mapped) {
+            String msg = "ZABBIX EXCEPTION: " + mapped.getMessage();
+            ProbeHelper.myLog(msg, LogLevel.ERROR);
+            throw new JavaGatewayException(msg,mapped);            
         }
         
     }
-    
-
-    
+        
 }

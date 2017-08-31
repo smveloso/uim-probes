@@ -200,7 +200,11 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      * @throws java.lang.InterruptedException
      */
     @Override
-    public IInventoryDataset getUpdatedInventory(ResourceConfig resourceConfig, IInventoryDataset previousDataset) throws NimException, InterruptedException {
+    public IInventoryDataset getUpdatedInventory(ResourceConfig resourceConfig, 
+                                                 IInventoryDataset previousDataset) 
+                                                 throws NimException,
+                                                        InterruptedException 
+    {
         ProbeHelper.myLog(">> getUpdatedInventory(ResourceConfig,IInventoryDataset)");
         int counter = resourceConfig.updateCounter;
         String profileName = resourceConfig.getName();
