@@ -24,6 +24,9 @@ public class Monitor {
     // wether the metricValue was successfully collected
     private boolean valueCollected;
     
+    // the name associated with the QOS for the uim element
+    private String elementMetricName;
+    
     public String getName() {
         return name;
     }
@@ -62,6 +65,14 @@ public class Monitor {
 
     public void setValueCollected(boolean valueCollected) {
         this.valueCollected = valueCollected;
+    }
+
+    public String getElementMetricName() {
+        return elementMetricName;
+    }
+
+    public void setElementMetricName(String elementMetricName) {
+        this.elementMetricName = elementMetricName;
     }
     
 }

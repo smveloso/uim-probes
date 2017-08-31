@@ -48,7 +48,7 @@ public class JavaGatewayFacade {
         this.jbossVersion = jbossVersion;
     }
     
-    public void collect(ProbeMain.ElementMonitorList list) throws JavaGatewayException {
+    public void collect(List<ProbeMain.ElementMonitorHolder> list) throws JavaGatewayException {
         
         try {
             JSONObject request = new JSONObject();
@@ -63,7 +63,7 @@ public class JavaGatewayFacade {
 
             List<String> keyList = new ArrayList<String>();
 
-            for (ProbeMain.ElementMonitorHolder holder:list.getList()) {
+            for (ProbeMain.ElementMonitorHolder holder:list) {
                 String jmxItem = holder.getMonitor().getValue();
                 jmxItem = "jmx[" + jmxItem + "]";
                 keyList.add(jmxItem);
@@ -79,11 +79,16 @@ public class JavaGatewayFacade {
             
             for (int k=0; k<response.length();++k) {
                 JSONObject jsonObject = response.getJSONObject(k);
+                Monitor monitor = list.get(k).getMonitor();
                 if (null == jsonObject.optString("error") && null != jsonObject.optString("value")) {
                     String value = jsonObject.getString("value");
-                    list.getList().get(k).getMonitor().setMetricValue(value);
-                    list.getList().get(k).getMonitor().setValueCollected(true);
-                };
+                    monitor.setMetricValue(value);
+                    monitor.setValueCollected(true);
+                } else {
+                    ProbeHelper.myLog("Failed to collect: " + monitor.getQos() + "[" + monitor.getValue() + "]",LogLevel.WARN);
+                    ProbeHelper.myLog("ERROR: " + jsonObject.getString("error"),LogLevel.WARN);
+                    monitor.setValueCollected(false);
+                }
             }
 
         } catch (JSONException mapped) {

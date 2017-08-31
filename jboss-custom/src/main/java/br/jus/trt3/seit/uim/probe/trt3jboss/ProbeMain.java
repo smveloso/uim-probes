@@ -335,6 +335,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                         ProbeHelper.myLog("class  : " + monitorClassName);
                         ProbeHelper.myLog("metric : " + monitorMetricName);
                         
+                        monitor.setElementMetricName(monitorMetricName);
+                        
                         Method m = Class.forName(monitorClassName).getMethod("addInstance", 
                                                                     IInventoryDataset.class,
                                                                     EntityId.class,
@@ -354,20 +356,41 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                         ProbeHelper.myLog("Method invoked to create and register the element OK!",LogLevel.DEBUG);
                         
                         elementMonitorList.add(new ElementMonitorHolder(uimElement, monitor));
-                        
-                        //uimElement.setMetric(uimElement.getMetricDef(monitorMetricName), 1024); //TODO save data to collect later (jmx)
-                        //ProbeHelper.myLog("Metric set!",LogLevel.DEBUG);
-                        
-                    } catch (ClassNotFoundException|NoSuchMethodException|IllegalAccessException|IllegalArgumentException|InvocationTargetException boom) {
-                        ProbeHelper.myLog("INSTROSPECTION ERROR!",LogLevel.ERROR);
-                        throw new RuntimeException("KABOOM: " + boom.getMessage(),boom);
-                    }
-                    
-                }
-
-            }
  
-            // TODO get the jmx item value !!! all at once ? use loop above (too slow ???)
+                    } catch (ClassNotFoundException|NoSuchMethodException|IllegalAccessException|IllegalArgumentException|InvocationTargetException reflectexp) {
+                        ProbeHelper.myLog("INSTROSPECTION ERROR!",LogLevel.ERROR);
+                        throw new NimException(NimException.E_ERROR,"INSTROSPECTION ERROR! " + reflectexp.getMessage()); 
+                    }
+                }
+            }
+            
+            try {
+            
+                JavaGatewayFacade facade = new JavaGatewayFacade();
+                facade.setJbossServer(voProfile.getJbossIp().getHostAddress());
+                facade.setJbossInstancePort(voProfile.getJbossPort());
+                facade.setJbossVersion(voProfile.getJbossVersion());
+
+                //TODO username
+                //TODO password
+
+                facade.collect(elementMonitorList);
+                
+                for (ElementMonitorHolder holder:elementMonitorList) {
+                    Monitor monitor = holder.getMonitor();
+                    Element uimElement = holder.getElement();
+                    if (monitor.isValueCollected()) {
+                       uimElement.setMetric(uimElement.getMetricDef(monitor.getElementMetricName()), monitor.getMetricValue());
+                       ProbeHelper.myLog("Metric set!",LogLevel.DEBUG);
+                    } else {
+                        ProbeHelper.myLog("Skipping: " + monitor.getName(), LogLevel.FATAL);
+                    }
+                }
+ 
+            } catch (JavaGatewayException mapped) {
+                ProbeHelper.myLog("JAVA GATEWAY ERROR!",LogLevel.ERROR);
+                throw new NimException(NimException.E_ERROR,"JAVA GATEWAY ERROR!" + mapped.getMessage());
+            }  
 
         } else {
             ProbeHelper.myLog("COULD NOT FIND CUSTOM CONFIG FOR PROFILE: " + profileName,LogLevel.WARN);
@@ -400,20 +423,6 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
         public Monitor getMonitor() {
             return monitor;
-        }
-        
-    }
-    
-    static class ElementMonitorList {
-        
-        private List<ElementMonitorHolder> list = new ArrayList<>();
-
-        public List<ElementMonitorHolder> getList() {
-            return list;
-        }
-        
-        public void add(ElementMonitorHolder holder) {
-            list.add(holder);
         }
         
     }
