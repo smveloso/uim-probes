@@ -24,6 +24,10 @@ public class JavaGatewayFacade {
     /** The version (4-10) of the jboss server */
     private Integer jbossVersion;
 
+    private String jbossUsername;
+    
+    private String jbossPassword;
+    
     public String getJbossServer() {
         return jbossServer;
     }
@@ -47,6 +51,22 @@ public class JavaGatewayFacade {
     public void setJbossVersion(Integer jbossVersion) {
         this.jbossVersion = jbossVersion;
     }
+
+    public String getJbossUsername() {
+        return jbossUsername;
+    }
+
+    public void setJbossUsername(String jbossUsername) {
+        this.jbossUsername = jbossUsername;
+    }
+
+    public String getJbossPassword() {
+        return jbossPassword;
+    }
+
+    public void setJbossPassword(String jbossPassword) {
+        this.jbossPassword = jbossPassword;
+    }
     
     public void collect(List<ProbeMain.ElementMonitorHolder> list) throws JavaGatewayException {
         
@@ -57,9 +77,8 @@ public class JavaGatewayFacade {
             request.put("conn",jbossServer);
             request.put("port",jbossInstancePort);
             request.put("jbossVersion",jbossVersion);
-
-            //TODO username
-            //TODO password
+            request.put("username",jbossUsername);
+            request.put("password",jbossPassword);
 
             List<String> keyList = new ArrayList<String>();
 

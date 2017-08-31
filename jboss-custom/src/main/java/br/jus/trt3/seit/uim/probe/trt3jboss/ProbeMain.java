@@ -53,6 +53,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     
     private static final String PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP = "jboss_custom_config_file";
 
+    private static final String PROFILE_JBOSS_USERNAME_PROP = "jboss_username";
+    
+    private static final String PROFILE_JBOSS_PASSWORD_PROP = "jboss_password";
     
     private static final Integer MIN_JBOSS_VERSION = 4;
     private static final Integer MAX_JBOSS_VERSION = 8;
@@ -140,6 +143,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "Config File", ProfileVO.PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE);
         profilePropDefs.setCfgPathname(PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP, "properties/"+PROFILE_JBOSS_CUSTOM_CONFIG_FILE_PROP);        
         
+        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_USERNAME_PROP, "Username", ProfileVO.PROFILE_JBOSS_DEFAULT_USERNAME);
+        profilePropDefs.setCfgPathname(PROFILE_JBOSS_USERNAME_PROP, "properties/"+PROFILE_JBOSS_USERNAME_PROP);        
+
+        profilePropDefs.addStringPropertyUsingEditField(PROFILE_JBOSS_PASSWORD_PROP, "Password", ProfileVO.PROFILE_JBOSS_DEFAULT_PASSWORD);
+        profilePropDefs.setCfgPathname(PROFILE_JBOSS_PASSWORD_PROP, "properties/"+PROFILE_JBOSS_PASSWORD_PROP);        
+
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
         ProbeHelper.myLog("<< addDefaultProbeConfigurationToGraph()", LogLevel.DEBUG);
@@ -286,6 +295,16 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
             vo.setCustomConfigFile(jbossFile);
 
+            String jbossUsername = res.getResourceProperty(PROFILE_JBOSS_USERNAME_PROP);
+            if (jbossUsername != null) {
+                vo.setJbossUsername(jbossUsername);
+            }
+
+            String jbossPassword = res.getResourceProperty(PROFILE_JBOSS_PASSWORD_PROP);
+            if (jbossPassword != null) {
+                vo.setJbossPassword(jbossPassword);
+            }
+            
             ProbeHelper.myLog("<< validateResourceConfiguration(ResourceConfig)",LogLevel.DEBUG);
             return vo;
         } catch (Trt3ProbeException mapped) {
@@ -370,9 +389,8 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
                 facade.setJbossServer(voProfile.getJbossIp().getHostAddress());
                 facade.setJbossInstancePort(voProfile.getJbossPort());
                 facade.setJbossVersion(voProfile.getJbossVersion());
-
-                //TODO username
-                //TODO password
+                facade.setJbossUsername(voProfile.getJbossUsername());
+                facade.setJbossPassword(voProfile.getJbossPassword());
 
                 facade.collect(elementMonitorList);
                 
@@ -407,7 +425,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         qosToEntityClassName.put("QOS_TRTJBOSS_GENERIC_COUNTER",new String[]{"br.jus.trt3.seit.uim.probe.types.TrtJbossCounter","TrtJbossCounter"});
     }
 
-    static class ElementMonitorHolder {
+    public static class ElementMonitorHolder {
         
         private Element element;
         private Monitor monitor;

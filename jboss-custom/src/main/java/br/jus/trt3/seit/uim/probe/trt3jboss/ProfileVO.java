@@ -16,12 +16,17 @@ public class ProfileVO {
     public static final String PROFILE_JBOSS_DEFAULT_IP = "127.0.0.1";
     public static final Integer PROFILE_JBOSS_DEFAULT_PORT = 4447;
     public static final String PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE = "/opt/nimsoft/probes/application/trt3jboss/trt3config.cfg";
+    public static final String PROFILE_JBOSS_DEFAULT_USERNAME = "admin";
+    public static final String PROFILE_JBOSS_DEFAULT_PASSWORD = "";
     
     private Integer jbossPort = PROFILE_JBOSS_DEFAULT_PORT;
     private InetAddress jbossIp = null;
     private Integer jbossVersion = PROFILE_JBOSS_DEFAULT_VERSION;
     private File customConfigFile = new File(PROFILE_JBOSS_DEFAULT_CUSTOM_CONFIG_FILE);
-
+    private String jbossUsername = PROFILE_JBOSS_DEFAULT_USERNAME;
+    private String jbossPassword = PROFILE_JBOSS_DEFAULT_PASSWORD;
+    
+    
     public ProfileVO() {
         try {
             jbossIp = InetAddress.getByName(PROFILE_JBOSS_DEFAULT_IP);
@@ -70,6 +75,22 @@ public class ProfileVO {
 
     public void setCustomConfigFile(File customConfigFile) {
         this.customConfigFile = customConfigFile;
+    }
+
+    public String getJbossUsername() {
+        return jbossUsername;
+    }
+
+    public void setJbossUsername(String jbossUsername) {
+        this.jbossUsername = jbossUsername;
+    }
+
+    public String getJbossPassword() {
+        return jbossPassword;
+    }
+
+    public void setJbossPassword(String jbossPassword) {
+        this.jbossPassword = jbossPassword;
     }
     
 }
