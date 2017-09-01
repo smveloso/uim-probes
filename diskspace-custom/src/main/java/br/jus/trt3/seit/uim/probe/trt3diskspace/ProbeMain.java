@@ -4,7 +4,6 @@ import br.jus.trt3.seit.uim.probe.trt3diskspace.types.*;
 
 import com.nimsoft.pf.common.pom.MvnPomVersion;
 import com.nimsoft.nimbus.NimException;
-import com.nimsoft.pf.common.log.Log;
 import com.nimsoft.probe.framework.devkit.ProbeBase;
 import com.nimsoft.probe.framework.devkit.interfaces.IProbeInventoryCollection;
 import com.nimsoft.probe.framework.devkit.interfaces.IInventoryDataset;
@@ -43,7 +42,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         try {
             ProbeBase.initLogging(args);
             ProbeMain probeProcess = new ProbeMain(args);
-            Log.info("Probe " + PROBE_NAME + " startup"); 
+            ProbeHelper.myLog("Probe " + PROBE_NAME + " startup"); 
             probeProcess.execute();
         } catch (final Exception e) {
             ProbeBase.reportProbeStartupError(e, PROBE_NAME);
@@ -74,7 +73,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     @Override
     public void addDefaultProbeConfigurationToGraph() {
 
-        Log.info(">> addDefaultProbeConfigurationToGraph()");         
+        ProbeHelper.myLog(">> addDefaultProbeConfigurationToGraph()");         
 
         // Add standard actions to add/delete/verify a profile
         ElementDef resDef = ElementDef.getElementDef("RESOURCE");
@@ -95,7 +94,7 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
         
-        Log.info("<< addDefaultProbeConfigurationToGraph()");
+        ProbeHelper.myLog("<< addDefaultProbeConfigurationToGraph()");
     }
  
     /**
@@ -127,17 +126,17 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public IInventoryDataset testResource(ResourceConfig res) throws NimException, InterruptedException {  
-       Log.info(">> testResource(ResourceConfig) " + res.getName());
+       ProbeHelper.myLog(">> testResource(ResourceConfig) " + res.getName());
 
         if (!SystemUtils.IS_OS_LINUX) {
-            Log.error("testResource: NOT LINUX !");
+            ProbeHelper.myLog("testResource: NOT LINUX !",LogLevel.ERROR);
             throw new NimException(NimException.E_ERROR, "Apenas LINUX");
         }
        
         try {
             DfService dfService = new DfService();
         } catch (DfNotFoundException mapped) {
-            Log.error("testResource: Não encontrei o comando df");
+            ProbeHelper.myLog("testResource: Não encontrei o comando df",LogLevel.ERROR);
             throw new NimException(NimException.E_ERROR, "Não encontrei o comando df",mapped);
         }
         
@@ -147,20 +146,20 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
         if (targetDir == null || targetDir.isEmpty()) {
             String errMsg = "Caminho do diretório não foi informado.";
-            Log.error("testResource: " + res.getName() + "   " + errMsg);
+            ProbeHelper.myLog("testResource: " + res.getName() + "   " + errMsg,LogLevel.ERROR);
             throw new NimException(NimException.E_ERROR, errMsg);
         }
 
         File root = new File(targetDir);
         if (!root.exists()) {
             String errMsg = "Diretório não encontrado: " + targetDir;
-            Log.error("testResource: " + res.getName() + "   " + errMsg);
+            ProbeHelper.myLog("testResource: " + res.getName() + "   " + errMsg,LogLevel.ERROR);
             throw new NimException(NimException.E_ERROR, errMsg);
         }
         
         // If we get to here then our tests were successful. Since we dont have 
         // any advanced information we wish to return we can simply return null
-        Log.info("<< testResource(ResourceConfig) " + res.getName());
+        ProbeHelper.myLog("<< testResource(ResourceConfig) " + res.getName());
         return null;
     }
     
@@ -180,30 +179,37 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public IInventoryDataset getUpdatedInventory(ResourceConfig resourceConfig, IInventoryDataset previousDataset) throws NimException, InterruptedException {
+
+        ProbeHelper.myLog(">> getUpdatedInventory(...)"); 
+
         // A recommended best practice is to read configuration information
         // on each call to getUpdatedInventory(). This ensures configuration changes
         // take effect without the need for a full restart of the probe.
         // Also, please note that the configuration information is cached by the 
         // framework, so there is very low overhead here.
         int counter = resourceConfig.updateCounter;
-        
-        Log.info("==== Begin getUpdatedInventory: Pass-" + counter + "   " + resourceConfig.getName());
+
+        ProbeHelper.myLog("==== Begin getUpdatedInventory: Pass-" + counter + "   " + resourceConfig.getName());
         
         // Create a new empty InventoryDataset
         InventoryDataset inventoryDataset = new InventoryDataset(resourceConfig);
         
-        /**
-         * ***** Insert your logic for populating the inventoryDataset here *****
-         * The following few lines of code are provided simply as an example of 
-         * how to create an inventory element, attach it to the ResourceConfig,
-         * and set a Metric on it. 
-         * When using this template to create a probe you should modify probe_schema.xml
-         * to specify your inventory elements and metrics. 
-         */
-        //Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "ExampleFolder"), "ExampleFolder", resourceConfig);
-        //ExampleGenericElement exampleElement = ExampleGenericElement.addInstance(inventoryDataset, new EntityId(exampleFolder, "ExampleElement"), "ExampleElement", exampleFolder);
-        //exampleElement.setMetric(ExampleGenericElement.ExampleMetric, 999);
-        
+        try {
+            
+            String targetDir = resourceConfig.getResourceProperty(TARGET_DIR_PROP);
+            File directory = new File(targetDir);
+            String absolutePath = directory.getAbsolutePath();            
+            DfService dfService = new DfService();
+            String percentageUsageAsString = dfService.getPercentageUsedAsString(absolutePath);
+            StorageDirectory storageDirectory = StorageDirectory.addInstance(inventoryDataset, new EntityId(absolutePath), absolutePath, resourceConfig);
+            storageDirectory.setMetric(StorageDirectory.DfUsagePercentage, percentageUsageAsString);
+            ProbeHelper.myLog("<< getUpdatedInventory(...)"); 
+            
+        } catch (DfNotFoundException mapped) {
+            ProbeHelper.myLog("Df command not found.",LogLevel.ERROR);
+            throw new NimException(NimException.E_ERROR,"Df command not found.");
+        }
+
         return inventoryDataset;
     }
 

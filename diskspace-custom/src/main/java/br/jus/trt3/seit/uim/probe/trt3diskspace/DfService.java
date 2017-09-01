@@ -47,5 +47,12 @@ public class DfService {
         
         ProbeHelper.myLog("<< locateCommand()");
     }
-    
+
+    public String getPathToDf() {
+        return pathToDf;
+    }
+
+    public String getPercentageUsedAsString(String absolutePath) {
+        return "1";
+    }
 }
