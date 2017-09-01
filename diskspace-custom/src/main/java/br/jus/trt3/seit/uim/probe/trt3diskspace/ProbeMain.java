@@ -24,6 +24,11 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
     public static final  String PROBE_VERSION = MvnPomVersion.get("br.jus.trt3.seit.uim.probe", PROBE_NAME);
     public static final  String PROBE_VENDOR = "br.jus.trt3.seit.uim.probe";
     
+    /** the directory path (mount point) of the element being monitored 
+     *  profile property
+     */
+    private static final String TARGET_DIR_PROP = "target_directory";
+    
     /**
      * Every probe is a stand alone Java program that must start itself up and
      * register itself with the bus. The Probe Framework provides all the logic
@@ -67,11 +72,14 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public void addDefaultProbeConfigurationToGraph() {
+
+        Log.info(">> addDefaultProbeConfigurationToGraph()");         
+
         // Add standard actions to add/delete/verify a profile
         ElementDef resDef = ElementDef.getElementDef("RESOURCE");
         resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.DeleteProfileAction);
-        resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.VerifySelectionAction, "Verify Profile Configuration");
-        resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.AddProfileActionOnProbe, "Add Profile");
+        resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.VerifySelectionAction, "Verificar configurações");
+        resDef.addStandardAction(IProbeResourceTypeInfo.StandardActionType.AddProfileActionOnProbe, "Acrescentar diretório");
         
         // Set the properties that will be available when a new profile is created in the probe configuration UI
         CtdPropertyDefinitionsList profilePropDefs = CtdPropertyDefinitionsList.createCtdPropertyDefinitionsList("RESOURCE", getGraph());
@@ -80,8 +88,13 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         profilePropDefs.addStandardIntervalProperty();
         profilePropDefs.addStandardActiveProperty();
 
+        profilePropDefs.addStringPropertyUsingEditField(TARGET_DIR_PROP, "Caminho completo", "/");
+        profilePropDefs.setCfgPathname(TARGET_DIR_PROP, "properties/"+TARGET_DIR_PROP);
+        
         // You must always invoke the super method
         super.addDefaultProbeConfigurationToGraph();
+        
+        Log.info("<< addDefaultProbeConfigurationToGraph()");
     }
  
     /**
@@ -163,9 +176,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
          * When using this template to create a probe you should modify probe_schema.xml
          * to specify your inventory elements and metrics. 
          */
-        Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "ExampleFolder"), "ExampleFolder", resourceConfig);
-        ExampleGenericElement exampleElement = ExampleGenericElement.addInstance(inventoryDataset, new EntityId(exampleFolder, "ExampleElement"), "ExampleElement", exampleFolder);
-        exampleElement.setMetric(ExampleGenericElement.ExampleMetric, 999);
+        //Folder exampleFolder = Folder.addInstance(inventoryDataset, new EntityId(resourceConfig, "ExampleFolder"), "ExampleFolder", resourceConfig);
+        //ExampleGenericElement exampleElement = ExampleGenericElement.addInstance(inventoryDataset, new EntityId(exampleFolder, "ExampleElement"), "ExampleElement", exampleFolder);
+        //exampleElement.setMetric(ExampleGenericElement.ExampleMetric, 999);
         
         return inventoryDataset;
     }
