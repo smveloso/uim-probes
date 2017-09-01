@@ -157,6 +157,12 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
             throw new NimException(NimException.E_ERROR, errMsg);
         }
         
+        if (!root.isDirectory()) {
+            String errMsg = "Caminho não é um diretório: " + targetDir;
+            ProbeHelper.myLog("testResource: " + res.getName() + "   " + errMsg,LogLevel.ERROR);
+            throw new NimException(NimException.E_ERROR, errMsg);
+        }
+        
         // If we get to here then our tests were successful. Since we dont have 
         // any advanced information we wish to return we can simply return null
         ProbeHelper.myLog("<< testResource(ResourceConfig) " + res.getName());
