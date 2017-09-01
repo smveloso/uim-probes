@@ -24,15 +24,6 @@
                     <qos-name>QOS_STORAGE_DIRECTORY_USAGE_PCT</qos-name>
                     <unit>pct</unit>
                     <conversions/>
-                </qos-metric-type>
-                <qos-metric-type name="DfFreePercentage">
-                    <active>yes</active>
-                    <description>Directory free space (%)</description>
-                    <label>FreeSpacePercentage</label>
-                    <metric-type>1.1:14</metric-type>
-                    <qos-name>QOS_STORAGE_DIRECTORY_FREE_PCT</qos-name>
-                    <unit>pct</unit>
-                    <conversions/>
                 </qos-metric-type>                
             </qos-metric-types>
         </element-type>
