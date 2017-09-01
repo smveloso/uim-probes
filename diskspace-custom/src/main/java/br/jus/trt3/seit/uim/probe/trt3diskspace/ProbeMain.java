@@ -206,9 +206,9 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
             File directory = new File(targetDir);
             String absolutePath = directory.getAbsolutePath();            
             DfService dfService = new DfService();
-            String percentageUsageAsString = dfService.getPercentageUsedAsString(absolutePath);
+            Integer percentageUsage = dfService.getPercentageUsed(absolutePath);
             StorageDirectory storageDirectory = StorageDirectory.addInstance(inventoryDataset, new EntityId(absolutePath), absolutePath, resourceConfig);
-            storageDirectory.setMetric(StorageDirectory.DfUsagePercentage, percentageUsageAsString);
+            storageDirectory.setMetric(StorageDirectory.DfUsagePercentage, percentageUsage);
             ProbeHelper.myLog("<< getUpdatedInventory(...)"); 
             
         } catch (DfNotFoundException mapped) {

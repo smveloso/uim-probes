@@ -55,4 +55,9 @@ public class DfService {
     public String getPercentageUsedAsString(String absolutePath) {
         return "1";
     }
+    
+    public Integer getPercentageUsed(String absolutePath) {
+        return 10;
+    }
+    
 }
