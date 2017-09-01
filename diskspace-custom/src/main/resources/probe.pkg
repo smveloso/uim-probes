@@ -1,9 +1,9 @@
 <package info>
    name = probe-name-string
-   description = Probe SDK Local Template
+   description = Disk space usage by TRT3
    copyright = Copyright 2014, CA. All rights reserved.
    group = application
-   author = mycompany
+   author = TRT-3
    version = 1.00
    build = 01
 </package info>
@@ -30,7 +30,7 @@
    type = probe-name-string
    update = probe-name-string
    <probe-name-string>
-      description = Probe SDK Local Template
+      description = Disk space usage by TRT3
       group = application
       active = yes
       preserve_state = yes
@@ -79,7 +79,7 @@
    OS = win32
    update = probe-name-string
    <probe-name-string>
-      description = Probe SDK Local Template
+      description = Disk space usage by TRT3
       group = application
       active = yes
       type = daemon
@@ -112,7 +112,7 @@
    OS = SOLARIS
    update = probe-name-string
    <probe-name-string>
-      description = Probe SDK Local Template
+      description = Disk space usage by TRT3
       group = application
       active = yes
       preserve_state = yes
@@ -146,7 +146,7 @@
    OS = LINUX
    update = probe-name-string
    <probe-name-string>
-      description = Probe SDK Local Template
+      description = Disk space usage by TRT3
       group = application
       active = yes
       preserve_state = yes
