@@ -14,6 +14,8 @@ import com.nimsoft.probe.framework.devkit.inventory.Folder;
 import com.nimsoft.probe.framework.devkit.configuration.ResourceConfig;
 import com.nimsoft.probe.framework.devkit.inventory.typedefs.*;
 import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
+import java.io.File;
+import org.apache.commons.lang.SystemUtils;
 
 public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
 
@@ -126,17 +128,40 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
      */
     @Override
     public IInventoryDataset testResource(ResourceConfig res) throws NimException, InterruptedException {  
-        Log.info("==== testResource: " + res.getName());
+       Log.info(">> testResource(ResourceConfig) " + res.getName());
+
+        if (!SystemUtils.IS_OS_LINUX) {
+            Log.error("testResource: NOT LINUX !");
+            throw new NimException(NimException.E_ERROR, "Apenas LINUX");
+        }
+       
+        try {
+            DfService dfService = new DfService();
+        } catch (DfNotFoundException mapped) {
+            Log.error("testResource: Não encontrei o comando df");
+            throw new NimException(NimException.E_ERROR, "Não encontrei o comando df",mapped);
+        }
         
-        /**
-         * ***** Insert your test logic here *****
-         * If your test is successful you need not do anything, simply 
-         * allow this method to return null. If you need to report an error
-         * then throw a NimException
-         */
+        // Test that target directory configuration is valid
+        // If it not we throw an exception stating why
+        String targetDir = res.getResourceProperty(TARGET_DIR_PROP);
+
+        if (targetDir == null || targetDir.isEmpty()) {
+            String errMsg = "Caminho do diretório não foi informado.";
+            Log.error("testResource: " + res.getName() + "   " + errMsg);
+            throw new NimException(NimException.E_ERROR, errMsg);
+        }
+
+        File root = new File(targetDir);
+        if (!root.exists()) {
+            String errMsg = "Diretório não encontrado: " + targetDir;
+            Log.error("testResource: " + res.getName() + "   " + errMsg);
+            throw new NimException(NimException.E_ERROR, errMsg);
+        }
         
         // If we get to here then our tests were successful. Since we dont have 
         // any advanced information we wish to return we can simply return null
+        Log.info("<< testResource(ResourceConfig) " + res.getName());
         return null;
     }
     

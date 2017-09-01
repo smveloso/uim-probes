@@ -37,6 +37,19 @@
             <artifactId>probe-api</artifactId>
             <version>${probe-api.version}</version>
         </dependency>
+
+        <!--        
+        
+        Documenting only. SDK 2.5.0 uses commons-lang 2.4
+        
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        -->
+        
     </dependencies>
 
     <build>
