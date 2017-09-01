@@ -214,7 +214,13 @@ public class ProbeMain extends ProbeBase implements IProbeInventoryCollection {
         } catch (DfNotFoundException mapped) {
             ProbeHelper.myLog("Df command not found.",LogLevel.ERROR);
             throw new NimException(NimException.E_ERROR,"Df command not found.");
-        }
+        } catch (DfExecException mapped) {
+            ProbeHelper.myLog("Df command exec failed.",LogLevel.ERROR);
+            throw new NimException(NimException.E_ERROR,"Df command exec failed.");
+        } catch (DfParseException mapped) {
+            ProbeHelper.myLog("Df command result parsing failed.",LogLevel.ERROR);
+            throw new NimException(NimException.E_ERROR,"Df command result parsing failed.");
+        } 
 
         return inventoryDataset;
     }
