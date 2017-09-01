@@ -7,3 +7,4 @@
 **\.log
 /jboss-custom/target/
 /jboss-custom/nbproject/
+/diskspace-custom/target/
