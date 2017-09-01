@@ -10,7 +10,6 @@ import com.nimsoft.probe.framework.devkit.interfaces.IProbeInventoryCollection;
 import com.nimsoft.probe.framework.devkit.interfaces.IInventoryDataset;
 import com.nimsoft.probe.framework.devkit.InventoryDataset;
 import com.nimsoft.probe.framework.devkit.configuration.CtdPropertyDefinitionsList;
-import com.nimsoft.probe.framework.devkit.inventory.Folder;
 import com.nimsoft.probe.framework.devkit.configuration.ResourceConfig;
 import com.nimsoft.probe.framework.devkit.inventory.typedefs.*;
 import com.nimsoft.vm.cfg.IProbeResourceTypeInfo;
